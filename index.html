@@ -840,6 +840,11 @@
   .note-card-content img { max-width: 100%; border-radius: 2px; margin: 6px 0; display: block; }
   .note-card-content label.check-item { display: inline-flex; align-items: flex-start; gap: 5px; }
   .note-card-content label.check-item input[type="checkbox"] { margin: 0; transform: translateY(2px); }
+  .note-card-content label.check-item input[type="checkbox"]:checked + span {
+    text-decoration: line-through;
+    color: var(--mute);
+    opacity: 0.75;
+  }
 
   /* Inline tag chip — always visible if tag is set; uppercase Bricolage */
   .note-tag-chip {
@@ -911,20 +916,29 @@
     transform: rotate(-45deg);
   }
 
-  /* "+ Note" header button */
-  .fs-add-btn {
+  /* "+" button — round, sits at top of the left toolbar */
+  .ptb-add {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
     background: var(--ink);
     color: var(--paper);
     border: none;
-    padding: 6px 14px;
-    border-radius: 4px;
     font-family: var(--sans);
-    font-size: 12px;
+    font-size: 22px;
+    font-weight: 300;
+    line-height: 1;
     cursor: pointer;
-    margin-right: 12px;
-    transition: background 0.15s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 16px;
+    padding: 0;
+    transition: background 0.15s ease, transform 0.1s ease;
+    box-shadow: 0 2px 5px rgba(10,10,10,0.15);
   }
-  .fs-add-btn:hover { background: var(--soft); }
+  .ptb-add:hover { background: var(--soft); }
+  .ptb-add:active { transform: scale(0.94); }
 
   /* Note editor */
   .note-editor {
@@ -1460,11 +1474,11 @@
 <div class="fullscreen" id="project-view">
   <div class="fs-header">
     <input type="text" class="fs-title" id="project-title-input" placeholder="Untitled project">
-    <button class="fs-add-btn" id="project-add-note">+ Note</button>
     <button class="fs-close" id="project-close">×</button>
   </div>
   <div class="project-main">
     <div class="project-toolbar" id="project-toolbar">
+      <button class="ptb-add" id="project-add-note" title="Add note">+</button>
       <div class="ptb-label">Text style</div>
       <button class="ptb-btn bold"   data-cmd="bold"          title="Bold (Cmd+B)">B</button>
       <button class="ptb-btn italic" data-cmd="italic"        title="Italic (Cmd+I)">I</button>
@@ -2320,6 +2334,37 @@ function renderCard(card, n, proj) {
     }
   });
 
+  // Enter inside a checklist line → another checklist line (empty item + Enter = end the list)
+  contentEl.addEventListener('keydown', e => {
+    if (e.key !== 'Enter' || e.shiftKey) return;
+    const sel = window.getSelection();
+    if (!sel || !sel.rangeCount) return;
+    let node = sel.anchorNode;
+    if (!node) return;
+    const el = (node.nodeType === 1 ? node : node.parentElement);
+    const checkItem = el && el.closest('.check-item');
+    if (!checkItem) return;
+    e.preventDefault();
+    const span = checkItem.querySelector('span');
+    const isEmpty = !span || !(span.textContent || '').replace(/\u00A0/g, '').trim();
+    if (isEmpty) {
+      // End the list — drop a plain new line after the empty check-item
+      document.execCommand('insertHTML', false, '<div><br></div>');
+      // Remove the trailing empty check-item so we don't leave an orphan
+      const parent = checkItem.parentElement;
+      checkItem.remove();
+      // If the parent div is now empty, nuke it too
+      if (parent && parent.tagName === 'DIV' && !parent.textContent.trim() && !parent.querySelector('img,label,input')) {
+        parent.remove();
+      }
+    } else {
+      // Add a new check-item on the next line
+      document.execCommand('insertHTML', false,
+        '<div><label class="check-item"><input type="checkbox"><span>&nbsp;</span></label></div>');
+    }
+    n.html = contentEl.innerHTML; save();
+  });
+
   // Image paste
   contentEl.addEventListener('paste', e => {
     const items = (e.clipboardData || {}).items;
@@ -2444,6 +2489,74 @@ document.querySelectorAll('#project-toolbar .ptb-btn').forEach(btn => {
   btn.addEventListener('mousedown', e => e.preventDefault());
   btn.addEventListener('click', () => runToolbarCmd(btn.dataset.cmd));
 });
+
+/* ════════════════ DRAG IMAGES ONTO CANVAS ════════════════ */
+(function setupCanvasDrop() {
+  const canvas = document.getElementById('notes-canvas');
+  if (!canvas) return;
+
+  // Visual hint while a file is being dragged over the canvas
+  let dragDepth = 0;
+  canvas.addEventListener('dragenter', e => {
+    if (!e.dataTransfer || !e.dataTransfer.types.includes('Files')) return;
+    dragDepth++;
+    canvas.style.outline = '2px dashed var(--accent)';
+    canvas.style.outlineOffset = '-8px';
+  });
+  canvas.addEventListener('dragleave', () => {
+    dragDepth = Math.max(0, dragDepth - 1);
+    if (dragDepth === 0) {
+      canvas.style.outline = '';
+      canvas.style.outlineOffset = '';
+    }
+  });
+  canvas.addEventListener('dragover', e => {
+    if (!e.dataTransfer || !e.dataTransfer.types.includes('Files')) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'copy';
+  });
+  canvas.addEventListener('drop', e => {
+    e.preventDefault();
+    dragDepth = 0;
+    canvas.style.outline = '';
+    canvas.style.outlineOffset = '';
+
+    const proj = data.projects.find(p => p.id === currentProjectId);
+    if (!proj) return;
+
+    const files = Array.from((e.dataTransfer && e.dataTransfer.files) || []);
+    const imageFiles = files.filter(f => f.type && f.type.startsWith('image/'));
+    if (imageFiles.length === 0) return;
+
+    // Drop coordinates relative to the canvas
+    const rect = canvas.getBoundingClientRect();
+    const baseX = e.clientX - rect.left;
+    const baseY = e.clientY - rect.top;
+
+    let i = 0;
+    imageFiles.forEach(file => {
+      const idx = i++;
+      const reader = new FileReader();
+      reader.onload = ev => {
+        const newNote = {
+          id: uid(),
+          title: '',
+          html: `<img src="${ev.target.result}" alt="">`,
+          tag: '',
+          color: '',
+          x: Math.max(0, baseX - 130 + idx * 24),
+          y: Math.max(0, baseY - 24 + idx * 24),
+          updatedAt: Date.now()
+        };
+        proj.notes.push(newNote);
+        save();
+        renderCanvas();
+        renderProjects();
+      };
+      reader.readAsDataURL(file);
+    });
+  });
+})();
 
 // (legacy alias retained — does nothing now since cards are always editable)
 function renderCardContents() {}
