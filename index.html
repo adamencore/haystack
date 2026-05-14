@@ -1370,6 +1370,7 @@
 <script>
 /* ════════════════ STORAGE & STATE ════════════════ */
 const STORAGE_KEY = 'adam-dashboard-v1';
+const DEFAULT_CALENDAR_SRC = 'https://calendar.google.com/calendar/embed?src=adam%40encorepa.org&ctz=America%2FDenver';
 const DEFAULT_DATA = {
   config: {
     calendarSrc: '',
@@ -1478,7 +1479,8 @@ function renderCalendar() {
   document.querySelectorAll('.mode-btn').forEach(b => {
     b.classList.toggle('active', b.dataset.mode === data.config.calendarMode);
   });
-  if (!data.config.calendarSrc) {
+  const src = data.config.calendarSrc || DEFAULT_CALENDAR_SRC;
+  if (!src) {
     frame.innerHTML = `
       <div class="calendar-empty">
         <div class="empty-title">Connect your calendar</div>
@@ -1486,7 +1488,6 @@ function renderCalendar() {
       </div>`;
     return;
   }
-  const src = data.config.calendarSrc;
   let finalSrc;
   try {
     const u = new URL(src);
@@ -1509,7 +1510,7 @@ document.getElementById('calendar-modes').addEventListener('click', e => {
   renderCalendar();
 });
 document.getElementById('calendar-settings-btn').addEventListener('click', () => {
-  document.getElementById('calendar-src-input').value = data.config.calendarSrc;
+  document.getElementById('calendar-src-input').value = data.config.calendarSrc || DEFAULT_CALENDAR_SRC;
   openModal('calendar-modal');
 });
 document.getElementById('calendar-save-btn').addEventListener('click', () => {
