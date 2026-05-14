@@ -697,6 +697,58 @@
   }
 
   /* Notes canvas (within a project) — freeform, drag-positioned cards */
+  .project-main {
+    flex: 1;
+    display: flex;
+    min-height: 0;
+  }
+  .project-toolbar {
+    width: 54px;
+    flex-shrink: 0;
+    background: var(--bg);
+    border-right: 1px solid var(--line);
+    padding: 14px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+  .ptb-label {
+    font-family: var(--sans);
+    font-size: 8pt;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--mute);
+    margin-bottom: 6px;
+    text-align: center;
+  }
+  .ptb-btn {
+    background: transparent;
+    border: none;
+    width: 36px;
+    height: 32px;
+    border-radius: 4px;
+    color: var(--soft);
+    font-family: var(--sans);
+    font-size: 12pt;
+    cursor: pointer;
+    transition: background 0.12s ease, color 0.12s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .ptb-btn:hover { background: var(--paper-sunken); color: var(--ink); }
+  .ptb-btn:active { background: var(--line); }
+  .ptb-btn.bold { font-weight: 700; }
+  .ptb-btn.italic { font-style: italic; }
+  .ptb-btn.strike { text-decoration: line-through; }
+  .ptb-sep {
+    width: 24px;
+    height: 1px;
+    background: var(--line);
+    margin: 6px 0;
+  }
+
   .canvas-scroll {
     flex: 1;
     overflow: auto;
@@ -712,11 +764,11 @@
   }
   .note-card {
     position: absolute;
-    width: 240px;
+    width: 260px;
     background: var(--paper);
     border: 1px solid var(--line);
     border-radius: 3px;
-    padding: 10px 12px 8px;
+    padding: 18px 20px 16px;
     box-shadow: 0 1px 2px rgba(10,10,10,0.06);
     transition: box-shadow 0.18s ease, border-color 0.18s ease;
     cursor: grab;
@@ -768,10 +820,10 @@
   .note-card-content {
     outline: none;
     font-family: var(--sans);
-    font-size: 12pt;
-    line-height: 1.4;
+    font-size: 11pt;
+    line-height: 1.45;
     color: var(--ink);
-    margin-top: 6px;
+    margin-top: 12px;
     min-height: 16px;
   }
   .note-card-content:empty::before {
@@ -779,65 +831,60 @@
     color: var(--mute);
     font-style: italic;
   }
-  .note-card-content h1 { font-family: var(--sans); font-size: 16pt; font-weight: 700; margin: 8px 0 3px; }
-  .note-card-content h2 { font-family: var(--sans); font-size: 14pt; font-weight: 700; margin: 6px 0 2px; }
-  .note-card-content p { margin: 4px 0; }
-  .note-card-content ul, .note-card-content ol { padding-left: 18px; margin: 4px 0; }
-  .note-card-content li { margin: 2px 0; }
+  .note-card-content h1 { font-family: var(--sans); font-size: 14pt; font-weight: 700; margin: 10px 0 4px; }
+  .note-card-content h2 { font-family: var(--sans); font-size: 12pt; font-weight: 700; margin: 8px 0 3px; }
+  .note-card-content p { margin: 6px 0; }
+  .note-card-content ul, .note-card-content ol { padding-left: 18px; margin: 6px 0; }
+  .note-card-content li { margin: 3px 0; }
   .note-card-content a { color: var(--accent); text-decoration: underline; }
-  .note-card-content img { max-width: 100%; border-radius: 2px; margin: 4px 0; display: block; }
+  .note-card-content img { max-width: 100%; border-radius: 2px; margin: 6px 0; display: block; }
   .note-card-content label.check-item { display: inline-flex; align-items: flex-start; gap: 5px; }
   .note-card-content label.check-item input[type="checkbox"] { margin: 0; transform: translateY(2px); }
 
-  /* Inline tag chip — always visible if tag is set */
+  /* Inline tag chip — always visible if tag is set; uppercase Bricolage */
   .note-tag-chip {
     display: inline-block;
-    margin-top: 8px;
+    margin-top: 12px;
     font-family: var(--sans);
-    font-style: italic;
-    font-size: 10pt;
-    padding: 1px 8px;
+    font-style: normal;
+    font-weight: 600;
+    font-size: 8.5pt;
+    padding: 2px 9px;
     border-radius: 99px;
-    letter-spacing: 0.2px;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
   }
 
   /* Controls panel — slides in when card has focus */
   .note-card-controls {
-    margin-top: 8px;
-    padding-top: 7px;
+    margin-top: 14px;
+    padding-top: 10px;
     border-top: 1px solid var(--line);
     display: none;
     flex-direction: column;
-    gap: 5px;
+    gap: 7px;
   }
   .note-card:focus-within .note-card-controls { display: flex; }
-  .note-controls-row { display: flex; flex-wrap: wrap; align-items: center; gap: 3px; }
+  .note-controls-row { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; }
   .note-controls-row .tag-label {
     font-family: var(--sans);
-    font-size: 9pt;
+    font-size: 8pt;
     color: var(--mute);
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.6px;
     margin-right: 4px;
     font-style: normal;
+    font-weight: 500;
   }
   .note-controls-row .tag-btn {
     font-family: var(--sans);
-    font-size: 10pt;
-    padding: 1px 7px;
+    font-style: normal;
+    font-weight: 600;
+    font-size: 8.5pt;
+    padding: 2px 8px;
     border-radius: 99px;
-  }
-  .note-controls-row .toolbar-btn {
-    font-family: var(--sans);
-    font-size: 11pt;
-    padding: 2px 6px;
-    min-width: 22px;
-  }
-  .note-controls-row .toolbar-sep {
-    width: 1px;
-    background: var(--line);
-    margin: 0 2px;
-    align-self: stretch;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
   }
 
   /* Color picker swatches */
@@ -1416,8 +1463,27 @@
     <button class="fs-add-btn" id="project-add-note">+ Note</button>
     <button class="fs-close" id="project-close">×</button>
   </div>
-  <div class="canvas-scroll" id="canvas-scroll">
-    <div class="notes-canvas" id="notes-canvas"></div>
+  <div class="project-main">
+    <div class="project-toolbar" id="project-toolbar">
+      <div class="ptb-label">Text style</div>
+      <button class="ptb-btn bold"   data-cmd="bold"          title="Bold (Cmd+B)">B</button>
+      <button class="ptb-btn italic" data-cmd="italic"        title="Italic (Cmd+I)">I</button>
+      <button class="ptb-btn strike" data-cmd="strikeThrough" title="Strikethrough">S</button>
+      <div class="ptb-sep"></div>
+      <button class="ptb-btn" data-cmd="h1"        title="Heading 1">H1</button>
+      <button class="ptb-btn" data-cmd="h2"        title="Heading 2">H2</button>
+      <button class="ptb-btn" data-cmd="paragraph" title="Paragraph">¶</button>
+      <div class="ptb-sep"></div>
+      <button class="ptb-btn" data-cmd="ul"    title="Bullet list">•</button>
+      <button class="ptb-btn" data-cmd="ol"    title="Numbered list">1.</button>
+      <button class="ptb-btn" data-cmd="check" title="Checklist">☐</button>
+      <div class="ptb-sep"></div>
+      <button class="ptb-btn" data-cmd="link"  title="Insert link">↗</button>
+      <button class="ptb-btn" data-cmd="image" title="Insert image">▤</button>
+    </div>
+    <div class="canvas-scroll" id="canvas-scroll">
+      <div class="notes-canvas" id="notes-canvas"></div>
+    </div>
   </div>
 </div>
 
@@ -2215,30 +2281,14 @@ function renderCard(card, n, proj) {
     <div class="note-card-controls">
       <div class="note-controls-row">
         <span class="tag-label">Tag</span>
-        <button class="tag-btn t-today" data-tag="today">#Today</button>
-        <button class="tag-btn t-tomorrow" data-tag="tomorrow">#Tomorrow</button>
-        <button class="tag-btn t-someday" data-tag="someday">#Someday</button>
+        <button class="tag-btn t-today" data-tag="today">Today</button>
+        <button class="tag-btn t-tomorrow" data-tag="tomorrow">Tomorrow</button>
+        <button class="tag-btn t-someday" data-tag="someday">Someday</button>
         <button class="tag-btn" data-tag="">Clear</button>
       </div>
       <div class="note-controls-row">
         <span class="tag-label">Color</span>
         ${swatches}
-      </div>
-      <div class="note-controls-row" style="border-top:1px solid var(--line); padding-top:8px; margin-top:2px;">
-        <button class="toolbar-btn bold" data-cmd="bold" title="Bold (Cmd+B)">B</button>
-        <button class="toolbar-btn italic" data-cmd="italic" title="Italic (Cmd+I)">I</button>
-        <button class="toolbar-btn strike" data-cmd="strikeThrough" title="Strikethrough">S</button>
-        <div class="toolbar-sep"></div>
-        <button class="toolbar-btn" data-cmd="h1" title="Heading 1">H1</button>
-        <button class="toolbar-btn" data-cmd="h2" title="Heading 2">H2</button>
-        <button class="toolbar-btn" data-cmd="paragraph" title="Paragraph">¶</button>
-        <div class="toolbar-sep"></div>
-        <button class="toolbar-btn" data-cmd="ul" title="Bullet list">• List</button>
-        <button class="toolbar-btn" data-cmd="ol" title="Numbered list">1. List</button>
-        <button class="toolbar-btn" data-cmd="check" title="Checklist item">☐</button>
-        <div class="toolbar-sep"></div>
-        <button class="toolbar-btn" data-cmd="link" title="Insert link">Link</button>
-        <button class="toolbar-btn" data-cmd="image" title="Insert image">Image</button>
       </div>
     </div>
   `;
@@ -2288,39 +2338,7 @@ function renderCard(card, n, proj) {
     }
   });
 
-  // Toolbar
-  card.querySelectorAll('.note-card-controls .toolbar-btn').forEach(btn => {
-    btn.addEventListener('mousedown', e => e.preventDefault());   // don't steal focus
-    btn.addEventListener('click', () => {
-      const cmd = btn.dataset.cmd;
-      contentEl.focus();
-      switch (cmd) {
-        case 'bold': document.execCommand('bold'); break;
-        case 'italic': document.execCommand('italic'); break;
-        case 'strikeThrough': document.execCommand('strikeThrough'); break;
-        case 'h1': document.execCommand('formatBlock', false, 'H1'); break;
-        case 'h2': document.execCommand('formatBlock', false, 'H2'); break;
-        case 'paragraph': document.execCommand('formatBlock', false, 'P'); break;
-        case 'ul': document.execCommand('insertUnorderedList'); break;
-        case 'ol': document.execCommand('insertOrderedList'); break;
-        case 'check':
-          document.execCommand('insertHTML', false,
-            '<label class="check-item"><input type="checkbox"><span>&nbsp;item</span></label><div><br></div>');
-          break;
-        case 'link': {
-          const url = prompt('Link URL:');
-          if (url) document.execCommand('createLink', false, url);
-          break;
-        }
-        case 'image': {
-          const url = prompt('Image URL (or paste an image directly into the note):');
-          if (url) document.execCommand('insertHTML', false, `<img src="${url}" alt="">`);
-          break;
-        }
-      }
-      n.html = contentEl.innerHTML; save();
-    });
-  });
+  // Toolbar lives in the project sidebar now (see setupProjectToolbar) — nothing per-card
 
   // Tag buttons
   card.querySelectorAll('.note-controls-row .tag-btn').forEach(btn => {
@@ -2368,6 +2386,64 @@ function updateTagButtons(card, n) {
     b.classList.toggle('active', b.dataset.tag === (n.tag || ''));
   });
 }
+
+/* ════════════════ PROJECT SIDEBAR TOOLBAR ════════════════ */
+// Tracks the most recently focused note content editor so the global toolbar
+// knows where to apply commands. Updated whenever a card editor is focused.
+let lastFocusedEditor = null;
+let lastFocusedNote   = null;
+
+document.addEventListener('focusin', e => {
+  const el = e.target;
+  if (el && el.classList && el.classList.contains('note-card-content')) {
+    lastFocusedEditor = el;
+    const card = el.closest('.note-card');
+    const id = card && card.dataset.id;
+    const proj = data.projects.find(p => p.id === currentProjectId);
+    if (proj && id) lastFocusedNote = proj.notes.find(x => x.id === id) || null;
+  }
+});
+
+function runToolbarCmd(cmd) {
+  if (!lastFocusedEditor) return;
+  // Make sure the contenteditable has focus so execCommand targets it
+  lastFocusedEditor.focus();
+  switch (cmd) {
+    case 'bold': document.execCommand('bold'); break;
+    case 'italic': document.execCommand('italic'); break;
+    case 'strikeThrough': document.execCommand('strikeThrough'); break;
+    case 'h1': document.execCommand('formatBlock', false, 'H1'); break;
+    case 'h2': document.execCommand('formatBlock', false, 'H2'); break;
+    case 'paragraph': document.execCommand('formatBlock', false, 'P'); break;
+    case 'ul': document.execCommand('insertUnorderedList'); break;
+    case 'ol': document.execCommand('insertOrderedList'); break;
+    case 'check':
+      document.execCommand('insertHTML', false,
+        '<label class="check-item"><input type="checkbox"><span>&nbsp;item</span></label><div><br></div>');
+      break;
+    case 'link': {
+      const url = prompt('Link URL:');
+      if (url) document.execCommand('createLink', false, url);
+      break;
+    }
+    case 'image': {
+      const url = prompt('Image URL (or paste an image directly into the note):');
+      if (url) document.execCommand('insertHTML', false, `<img src="${url}" alt="">`);
+      break;
+    }
+  }
+  if (lastFocusedNote) {
+    lastFocusedNote.html = lastFocusedEditor.innerHTML;
+    lastFocusedNote.updatedAt = Date.now();
+    save();
+  }
+}
+
+document.querySelectorAll('#project-toolbar .ptb-btn').forEach(btn => {
+  // Don't steal focus from the contenteditable when clicking the toolbar
+  btn.addEventListener('mousedown', e => e.preventDefault());
+  btn.addEventListener('click', () => runToolbarCmd(btn.dataset.cmd));
+});
 
 // (legacy alias retained — does nothing now since cards are always editable)
 function renderCardContents() {}
