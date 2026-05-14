@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Haystack — Adam Record</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="apple-touch-icon" href="favicon.svg">
 <style>
   /* Primary font: Iowan Old Style (built-in macOS system font) */
   /* Falls back to Charter, then Georgia. To add via Adobe Fonts later, */
@@ -192,14 +194,14 @@
   .icon-btn.primary { color: var(--accent); }
 
   /* Grid spans — backgrounds use Haystack soft palette */
-  .w-calendar     { grid-column: span 6; min-height: 0; }
+  .w-projects     { grid-column: span 12; }
+  .w-calendar     { grid-column: span 5; min-height: 0; }
   .w-affirmations { grid-column: span 3; background: #FFF7EB; border: none; } /* Cream */
-  .w-inspo        { grid-column: span 3; }
+  .w-inspo        { grid-column: span 4; }
   .w-wilt         { grid-column: span 4; background: #D6ECFF; border: none; } /* Sky */
   .w-goals        { grid-column: span 4; background: #FFF1CC; border: none; } /* soft yellow */
   .w-people       { grid-column: span 2; background: #FFE3EF; border: none; } /* soft pink */
   .w-resources    { grid-column: span 2; background: #D9F7E6; border: none; } /* Mint */
-  .w-projects     { grid-column: span 12; }
 
   @media (max-width: 1200px) {
     .w-calendar { grid-column: span 12; }
@@ -1129,6 +1131,14 @@
 <!-- ─────────────────────────── DASHBOARD GRID ─────────────────── -->
 <main class="dashboard">
 
+  <!-- PROJECTS -->
+  <section class="widget w-projects">
+    <div class="widget-header">
+      <div class="widget-title"><span class="icon-slot" data-icon="projects"><img src="projects.webp" alt=""></span>Projects</div>
+    </div>
+    <div class="projects-grid" id="projects-grid"></div>
+  </section>
+
   <!-- CALENDAR -->
   <section class="widget w-calendar">
     <div class="widget-header">
@@ -1218,12 +1228,7 @@
   </section>
 
   <!-- PROJECTS -->
-  <section class="widget w-projects">
-    <div class="widget-header">
-      <div class="widget-title"><span class="icon-slot" data-icon="projects"><img src="projects.webp" alt=""></span>Projects</div>
-    </div>
-    <div class="projects-grid" id="projects-grid"></div>
-  </section>
+  <!-- PROJECTS moved to top -->
 
 </main>
 
