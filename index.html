@@ -1106,13 +1106,107 @@
   }
   .saved-flash.show { opacity: 1; transform: translateY(0); }
 
+  /* ───── Auth gate (sign-in screen) ───── */
+  .auth-gate {
+    position: fixed; inset: 0;
+    background: var(--bg);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 9999;
+    padding: 24px;
+  }
+  .auth-card {
+    text-align: center;
+    max-width: 420px;
+  }
+  .auth-logo {
+    height: 110px; width: auto;
+    margin-bottom: 14px;
+  }
+  .auth-tagline {
+    font-style: italic;
+    color: var(--mute);
+    font-size: 15px;
+    margin: 0 0 36px 0;
+  }
+  .auth-button {
+    display: inline-flex; align-items: center; gap: 10px;
+    background: #24292f; color: #fff;
+    border: none;
+    padding: 12px 22px;
+    border-radius: 8px;
+    font-family: var(--sans);
+    font-size: 15px;
+    cursor: pointer;
+    transition: background 0.15s ease;
+  }
+  .auth-button:hover { background: #1c2128; }
+  .auth-button svg { width: 18px; height: 18px; fill: currentColor; }
+  .auth-error {
+    margin-top: 20px;
+    color: #b3261e;
+    font-size: 13px;
+    min-height: 18px;
+  }
+
+  /* ───── Account chip (top-right when signed in) ───── */
+  .account-chip {
+    position: fixed; top: 14px; right: 18px;
+    display: none;
+    align-items: center; gap: 10px;
+    font-size: 12px;
+    color: var(--mute);
+    z-index: 200;
+    font-family: var(--sans);
+  }
+  .account-chip.show { display: flex; }
+  .account-chip button {
+    background: transparent;
+    border: 1px solid var(--line-strong);
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-family: var(--sans);
+    font-size: 12px;
+    color: var(--soft);
+    cursor: pointer;
+  }
+  .account-chip button:hover { background: var(--paper-sunken); }
+  .sync-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--hs-green);
+    display: inline-block;
+    opacity: 0.65;
+  }
+  .sync-dot.syncing { background: var(--hs-yellow); }
+  .sync-dot.error   { background: var(--hs-pink); }
+
   ::-webkit-scrollbar { width: 8px; height: 8px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: var(--line-strong); border-radius: 4px; }
   ::-webkit-scrollbar-thumb:hover { background: var(--mute); }
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
+
+<!-- ─────────────────────────── AUTH GATE ─────────────────────────── -->
+<div class="auth-gate" id="auth-gate">
+  <div class="auth-card">
+    <img src="logo.png" alt="Haystack" class="auth-logo">
+    <p class="auth-tagline">~ a place to think with yourself ~</p>
+    <button class="auth-button" id="signin-btn">
+      <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+      Sign in with GitHub
+    </button>
+    <div class="auth-error" id="auth-error"></div>
+  </div>
+</div>
+
+<!-- ─────────────────────────── ACCOUNT CHIP ─────────────────────────── -->
+<div class="account-chip" id="account-chip">
+  <span class="sync-dot" id="sync-dot" title="In sync"></span>
+  <span id="account-name"></span>
+  <button id="signout-btn">Sign out</button>
+</div>
 
 <!-- ─────────────────────────── HEADER ─────────────────────────── -->
 <header class="header">
@@ -1365,8 +1459,13 @@
 
 <!-- ─────────────────────────── SCRIPT ─────────────────────────── -->
 <script>
+/* ════════════════ SUPABASE CONFIG ════════════════ */
+const SUPABASE_URL = 'https://tfrbwhqqyjmbkqypnqzt.supabase.co';
+const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_JrvAY7d2kxvwxwN0-e0DPA_861xNL7P';
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+
 /* ════════════════ STORAGE & STATE ════════════════ */
-const STORAGE_KEY = 'adam-dashboard-v1';
+const STORAGE_KEY = 'adam-dashboard-v1';   // kept as local backup + migration source
 const DEFAULT_CALENDAR_SRC = 'https://calendar.google.com/calendar/embed?src=adam%40encorepa.org&ctz=America%2FDenver';
 const DEFAULT_DATA = {
   config: {
@@ -1388,30 +1487,64 @@ const DEFAULT_DATA = {
 function clone(o) { return JSON.parse(JSON.stringify(o)); }
 function uid() { return Math.random().toString(36).slice(2, 10); }
 
-let data;
-try {
-  const raw = localStorage.getItem(STORAGE_KEY);
-  data = raw ? Object.assign(clone(DEFAULT_DATA), JSON.parse(raw)) : clone(DEFAULT_DATA);
-  // Backfill nested defaults
-  data.config = Object.assign({}, DEFAULT_DATA.config, data.config || {});
-  data.goals = Object.assign({}, DEFAULT_DATA.goals, data.goals || {});
-} catch (e) {
-  data = clone(DEFAULT_DATA);
+let data = clone(DEFAULT_DATA);   // safe default until boot() loads real data
+let currentUser = null;
+
+function mergeWithDefaults(loaded) {
+  const merged = Object.assign(clone(DEFAULT_DATA), loaded || {});
+  merged.config = Object.assign({}, DEFAULT_DATA.config, merged.config || {});
+  merged.goals  = Object.assign({}, DEFAULT_DATA.goals,  merged.goals  || {});
+  return merged;
+}
+
+async function fetchStateFromCloud() {
+  const { data: row, error } = await sb
+    .from('dashboard_state')
+    .select('data')
+    .eq('user_id', currentUser.id)
+    .maybeSingle();
+  if (error) { console.error('Cloud fetch failed', error); return null; }
+  return row ? row.data : null;
+}
+
+async function pushStateToCloud(payload) {
+  const { error } = await sb
+    .from('dashboard_state')
+    .upsert({ user_id: currentUser.id, data: payload }, { onConflict: 'user_id' });
+  if (error) throw error;
+}
+
+function setSyncDot(state) {
+  const dot = document.getElementById('sync-dot');
+  if (!dot) return;
+  dot.classList.remove('syncing', 'error');
+  if (state === 'syncing') dot.classList.add('syncing');
+  if (state === 'error')   dot.classList.add('error');
+  dot.title = state === 'syncing' ? 'Saving…' : state === 'error' ? 'Save failed — will retry on next change' : 'In sync';
 }
 
 let saveTimer = null;
 function save(flash = false) {
   if (saveTimer) clearTimeout(saveTimer);
-  saveTimer = setTimeout(() => {
+  saveTimer = setTimeout(async () => {
+    // Always write to localStorage first (instant, offline-safe backup)
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
+    catch (e) { console.error('Local backup failed', e); }
+
+    if (!currentUser) return;   // shouldn't happen, but bail safely
+
+    setSyncDot('syncing');
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      await pushStateToCloud(data);
+      setSyncDot('idle');
       if (flash) flashSaved();
     } catch (e) {
-      console.error('Save failed', e);
-      alert('Could not save — local storage may be full. Try removing some images.');
+      console.error('Cloud save failed', e);
+      setSyncDot('error');
     }
-  }, 200);
+  }, 500);
 }
+
 function flashSaved() {
   const el = document.getElementById('saved-flash');
   el.classList.add('show');
@@ -2112,23 +2245,120 @@ document.addEventListener('keydown', e => {
   }
 });
 
-/* ════════════════ INITIAL RENDER ════════════════ */
-renderDate();
-renderWeather();
-renderCalendar();
-renderAffirmations();
-renderInspo();
-renderWILT();
-renderGoals();
-renderPeople();
-renderResources();
-renderProjects();
+/* ════════════════ AUTH + BOOT ════════════════ */
+function showSignIn(errorMsg) {
+  const gate = document.getElementById('auth-gate');
+  const chip = document.getElementById('account-chip');
+  if (gate) gate.style.display = 'flex';
+  if (chip) chip.classList.remove('show');
+  const errEl = document.getElementById('auth-error');
+  if (errEl) errEl.textContent = errorMsg || '';
+}
 
-// Refresh date at midnight
-setInterval(() => {
+function hideSignIn() {
+  const gate = document.getElementById('auth-gate');
+  if (gate) gate.style.display = 'none';
+}
+
+document.getElementById('signin-btn').addEventListener('click', async () => {
+  document.getElementById('auth-error').textContent = '';
+  const { error } = await sb.auth.signInWithOAuth({
+    provider: 'github',
+    options: { redirectTo: window.location.origin + window.location.pathname }
+  });
+  if (error) {
+    console.error(error);
+    document.getElementById('auth-error').textContent = error.message || 'Sign-in failed.';
+  }
+});
+
+document.getElementById('signout-btn').addEventListener('click', async () => {
+  await sb.auth.signOut();
+  window.location.reload();
+});
+
+function renderEverything() {
   renderDate();
+  renderWeather();
+  renderCalendar();
+  renderAffirmations();
+  renderInspo();
   renderWILT();
-}, 60 * 1000);
+  renderGoals();
+  renderPeople();
+  renderResources();
+  renderProjects();
+}
+
+async function boot() {
+  // Did the user just come back from GitHub OAuth? supabase-js handles the URL fragment
+  // automatically; getSession() returns the new session if so.
+  const { data: { session }, error: sessErr } = await sb.auth.getSession();
+
+  if (sessErr) {
+    showSignIn('Could not reach Supabase. Check your connection and refresh.');
+    return;
+  }
+
+  if (!session) {
+    showSignIn();
+    return;
+  }
+
+  currentUser = session.user;
+
+  // Fetch state from the cloud
+  let cloudData = null;
+  try {
+    cloudData = await fetchStateFromCloud();
+  } catch (e) {
+    console.error('Initial fetch failed', e);
+    showSignIn('Could not load your data. Try refreshing.');
+    return;
+  }
+
+  // First-time-on-this-account fallback: migrate localStorage data up if cloud is empty
+  if (!cloudData) {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        const localData = JSON.parse(raw);
+        await pushStateToCloud(localData);
+        cloudData = localData;
+        console.log('Migrated existing localStorage data to Supabase.');
+      }
+    } catch (e) {
+      console.error('Migration from localStorage failed (continuing with empty state)', e);
+    }
+  }
+
+  data = mergeWithDefaults(cloudData);
+
+  // Show the chip with account info
+  hideSignIn();
+  const chip = document.getElementById('account-chip');
+  chip.classList.add('show');
+  const meta = session.user.user_metadata || {};
+  document.getElementById('account-name').textContent =
+    meta.user_name || meta.preferred_username || session.user.email || 'Signed in';
+  setSyncDot('idle');
+
+  // Boot the dashboard UI
+  renderEverything();
+
+  // Refresh date at midnight (originally at file bottom)
+  setInterval(() => {
+    renderDate();
+    renderWILT();
+  }, 60 * 1000);
+}
+
+// Kick things off
+if (!window.supabase) {
+  showSignIn('Could not load Supabase library. Check your connection and refresh.');
+} else {
+  boot();
+}
 </script>
 </body>
 </html>
