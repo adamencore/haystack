@@ -651,7 +651,7 @@
     z-index: 100;
     display: none;
     flex-direction: column;
-    overflow-y: auto;
+    overflow: hidden;
   }
   .fullscreen.open { display: flex; }
   .fs-header {
@@ -693,40 +693,59 @@
     width: 100%;
   }
 
-  /* Notes board (within a project) */
-  .notes-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-    gap: 18px;
+  /* Notes canvas (within a project) — freeform, drag-positioned cards */
+  .canvas-scroll {
+    flex: 1;
+    overflow: auto;
+    background: var(--paper-sunken);
+    position: relative;
+  }
+  .notes-canvas {
+    position: relative;
+    width: 4000px;
+    height: 3000px;
+    background-image: radial-gradient(rgba(0,0,0,0.08) 1px, transparent 1px);
+    background-size: 24px 24px;
+    background-position: 0 0;
   }
   .note-card {
+    position: absolute;
     background: var(--paper);
     border: 1px solid var(--line);
-    border-radius: 2px;
-    overflow: hidden;
-    cursor: pointer;
-    transition: all 0.18s ease;
-    position: relative;
-    min-height: 160px;
+    border-radius: 4px;
+    cursor: grab;
+    transition: box-shadow 0.18s ease, border-color 0.18s ease;
+    min-height: 80px;
+    width: 280px;
     display: flex;
     flex-direction: column;
+    box-shadow: 0 1px 3px rgba(10,10,10,0.06);
+    user-select: none;
   }
   .note-card:hover {
     border-color: var(--line-strong);
-    transform: translateY(-1px);
-    box-shadow: 0 6px 16px rgba(27,27,27,0.06);
+    box-shadow: 0 4px 12px rgba(27,27,27,0.08);
   }
-  .note-cover {
-    width: 100%;
-    height: 120px;
-    background: var(--paper-sunken);
-    background-size: cover;
-    background-position: center;
+  .note-card.dragging {
+    cursor: grabbing;
+    opacity: 0.92;
+    z-index: 50;
+    box-shadow: 0 12px 28px rgba(27,27,27,0.18);
+    transition: none;
   }
+  .note-card.expanded {
+    cursor: default;
+    width: 440px;
+    z-index: 20;
+    user-select: text;
+    box-shadow: 0 12px 32px rgba(27,27,27,0.14);
+    padding: 18px 20px;
+  }
+  .note-card.expanded:hover { box-shadow: 0 12px 32px rgba(27,27,27,0.14); }
   .note-card-body { padding: 14px 16px; flex: 1; }
   .note-card-title {
     font-family: var(--serif);
-    font-size: 20px;
+    font-size: 18px;
     font-weight: 400;
     line-height: 1.2;
     color: var(--ink);
@@ -739,7 +758,7 @@
     line-height: 1.5;
     overflow: hidden;
     display: -webkit-box;
-    -webkit-line-clamp: 3;
+    -webkit-line-clamp: 4;
     -webkit-box-orient: vertical;
   }
   .note-card-tag {
@@ -773,24 +792,46 @@
   }
   .note-card:hover .note-card-delete { opacity: 1; }
   .note-card-delete:hover { background: var(--ink); color: var(--paper); }
-  .note-add {
-    background: transparent;
-    border: 1px dashed var(--line-strong);
-    border-radius: 2px;
-    min-height: 160px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+
+  /* "+ Note" button lives in the fs-header now (no in-canvas add card) */
+  .fs-add-btn {
+    background: var(--ink);
+    color: var(--paper);
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-family: var(--sans);
+    font-size: 13px;
     cursor: pointer;
-    font-family: var(--serif);
-    font-style: italic;
-    font-size: 18px;
-    color: var(--mute);
-    transition: all 0.18s ease;
+    margin-right: 12px;
+    transition: background 0.15s ease;
   }
-  .note-add:hover {
-    border-color: var(--accent);
-    color: var(--accent);
+  .fs-add-btn:hover { background: var(--soft); }
+
+  /* Color picker swatches (in expanded card) */
+  .note-color-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .note-color-row .tag-label { margin-right: 4px; }
+  .color-swatch {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    border: 1px solid var(--line-strong);
+    cursor: pointer;
+    padding: 0;
+    transition: transform 0.1s ease;
+  }
+  .color-swatch:hover { transform: scale(1.1); }
+  .color-swatch.active { box-shadow: 0 0 0 2px var(--ink); }
+  .color-swatch.no-color {
+    background: var(--paper);
+    position: relative;
+  }
+  .color-swatch.no-color::after {
+    content: '';
+    position: absolute;
+    top: 50%; left: 10%; right: 10%;
+    height: 1.5px;
+    background: var(--mute);
+    transform: rotate(-45deg);
   }
 
   /* Note editor */
@@ -1106,17 +1147,7 @@
   }
   .saved-flash.show { opacity: 1; transform: translateY(0); }
 
-  /* ───── Inline note expansion (card grid → expand-in-place editor) ───── */
-  .note-card.expanded {
-    grid-column: 1 / -1;
-    cursor: default;
-    background: var(--paper);
-    padding: 22px 26px;
-    transition: none;
-    transform: none;
-    min-height: auto;
-  }
-  .note-card.expanded:hover { transform: none; }
+  /* ───── Inline note expansion content layout ───── */
   .note-card.expanded .note-card-body,
   .note-card.expanded .note-card-delete { display: none; }
 
@@ -1383,10 +1414,11 @@
 <div class="fullscreen" id="project-view">
   <div class="fs-header">
     <input type="text" class="fs-title" id="project-title-input" placeholder="Untitled project">
+    <button class="fs-add-btn" id="project-add-note">+ Note</button>
     <button class="fs-close" id="project-close">×</button>
   </div>
-  <div class="fs-body">
-    <div class="notes-grid" id="notes-grid"></div>
+  <div class="canvas-scroll" id="canvas-scroll">
+    <div class="notes-canvas" id="notes-canvas"></div>
   </div>
 </div>
 
@@ -2011,7 +2043,7 @@ function renderProjects() {
   add.className = 'project-add';
   add.textContent = '+ new project';
   add.addEventListener('click', () => {
-    const firstNote = { id: uid(), title: '', html: '', tag: '', updatedAt: Date.now() };
+    const firstNote = { id: uid(), title: '', html: '', tag: '', x: 40, y: 40, updatedAt: Date.now() };
     const newProj = { id: uid(), name: '', notes: [firstNote] };
     data.projects.push(newProj);
     save();
@@ -2030,12 +2062,17 @@ function openProject(id) {
   if (!proj) return;
   // Defensive: ensure folder has at least one note (handles legacy data)
   if (!proj.notes || proj.notes.length === 0) {
-    proj.notes = [{ id: uid(), title: '', html: '', tag: '', updatedAt: Date.now() }];
+    proj.notes = [{ id: uid(), title: '', html: '', tag: '', x: 40, y: 40, updatedAt: Date.now() }];
     save();
   }
   document.getElementById('project-title-input').value = proj.name;
   document.getElementById('project-view').classList.add('open');
-  renderNotesGrid();
+  renderCanvas();
+  // Scroll canvas to where the notes are (top-left)
+  setTimeout(() => {
+    const s = document.getElementById('canvas-scroll');
+    if (s) { s.scrollLeft = 0; s.scrollTop = 0; }
+  }, 30);
 }
 function closeProject() {
   currentProjectId = null;
@@ -2043,50 +2080,146 @@ function closeProject() {
   document.getElementById('project-view').classList.remove('open');
   renderProjects();
 }
+
+// "+ Note" header button — drops a card in the visible viewport
+document.getElementById('project-add-note').addEventListener('click', () => {
+  const proj = data.projects.find(p => p.id === currentProjectId);
+  if (!proj) return;
+  const s = document.getElementById('canvas-scroll');
+  const x = (s.scrollLeft || 0) + 40;
+  const y = (s.scrollTop  || 0) + 40;
+  const newNote = { id: uid(), title: '', html: '', tag: '', color: '', x, y, updatedAt: Date.now() };
+  proj.notes.push(newNote);
+  save();
+  currentNoteId = newNote.id;
+  renderCanvas();
+  renderProjects();
+  setTimeout(() => {
+    const inp = document.querySelector(`.note-card[data-id="${newNote.id}"] .note-inline-title`);
+    if (inp) inp.focus();
+  }, 30);
+});
 document.getElementById('project-close').addEventListener('click', closeProject);
 document.getElementById('project-title-input').addEventListener('input', e => {
   const proj = data.projects.find(p => p.id === currentProjectId);
   if (proj) { proj.name = e.target.value; save(); }
 });
 
-function renderNotesGrid() {
-  const grid = document.getElementById('notes-grid');
-  grid.innerHTML = '';
+/* ════════════════ NOTE CANVAS ════════════════ */
+
+// Haystack color palette for note backgrounds
+const NOTE_COLORS = [
+  { name: '',           value: '' },                          // default (paper)
+  { name: 'cream',      value: 'var(--hs-cream)' },
+  { name: 'sky',        value: 'var(--hs-sky)' },
+  { name: 'mint',       value: 'var(--hs-mint)' },
+  { name: 'yellow',     value: '#FFF1CC' },
+  { name: 'pink',       value: '#FFE3EF' },
+];
+
+const CARD_DEFAULT_WIDTH = 280;
+
+function ensureCardPositions(proj) {
+  let changed = false;
+  let i = 0;
+  proj.notes.forEach(n => {
+    if (typeof n.x !== 'number' || typeof n.y !== 'number') {
+      const col = i % 3;
+      const row = Math.floor(i / 3);
+      n.x = 40 + col * 310;
+      n.y = 40 + row * 230;
+      changed = true;
+    }
+    i++;
+  });
+  if (changed) save();
+}
+
+function renderCanvas() {
+  const canvas = document.getElementById('notes-canvas');
+  canvas.innerHTML = '';
   const proj = data.projects.find(p => p.id === currentProjectId);
   if (!proj) return;
+  ensureCardPositions(proj);
 
   proj.notes.forEach(n => {
     const card = document.createElement('div');
     card.className = 'note-card';
     card.dataset.id = n.id;
+    card.style.left = (n.x || 0) + 'px';
+    card.style.top  = (n.y || 0) + 'px';
+    if (n.color) card.style.background = n.color;
     if (n.id === currentNoteId) card.classList.add('expanded');
     renderCardContents(card, n, proj);
-    grid.appendChild(card);
+    attachCardDrag(card, n, proj);
+    canvas.appendChild(card);
   });
+}
 
-  const add = document.createElement('div');
-  add.className = 'note-add';
-  add.textContent = '+ new note';
-  add.addEventListener('click', () => {
-    const newNote = { id: uid(), title: '', html: '', tag: '', updatedAt: Date.now() };
-    proj.notes.push(newNote);
-    save();
-    currentNoteId = newNote.id;
-    renderNotesGrid();
-    renderProjects();
-    // Focus the new card's title
-    setTimeout(() => {
-      const inp = document.querySelector(`.note-card[data-id="${newNote.id}"] .note-inline-title`);
-      if (inp) inp.focus();
-    }, 30);
+// alias kept for any leftover callers
+function renderNotesGrid() { renderCanvas(); }
+
+function attachCardDrag(card, n, proj) {
+  let downX, downY, origX, origY, isDragging, scrollEl;
+
+  card.addEventListener('pointerdown', e => {
+    // Don't initiate drag if the card is expanded (user is editing)
+    if (n.id === currentNoteId) return;
+    // Don't drag from buttons or other interactive children
+    if (e.target.closest('button, input, textarea, [contenteditable]')) return;
+    if (e.button !== undefined && e.button !== 0) return;   // left click only
+
+    downX = e.clientX;
+    downY = e.clientY;
+    origX = n.x || 0;
+    origY = n.y || 0;
+    isDragging = false;
+    scrollEl = document.getElementById('canvas-scroll');
+
+    function onMove(ev) {
+      const dx = ev.clientX - downX;
+      const dy = ev.clientY - downY;
+      if (!isDragging && (Math.abs(dx) > 4 || Math.abs(dy) > 4)) {
+        isDragging = true;
+        card.classList.add('dragging');
+        card.setPointerCapture && card.setPointerCapture(ev.pointerId);
+      }
+      if (isDragging) {
+        n.x = Math.max(0, origX + dx);
+        n.y = Math.max(0, origY + dy);
+        card.style.left = n.x + 'px';
+        card.style.top  = n.y + 'px';
+      }
+    }
+    function onUp(ev) {
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerup', onUp);
+      if (isDragging) {
+        card.classList.remove('dragging');
+        n.updatedAt = Date.now();
+        save();
+      } else {
+        // It was a click → expand this card
+        currentNoteId = n.id;
+        renderCanvas();
+      }
+    }
+    window.addEventListener('pointermove', onMove);
+    window.addEventListener('pointerup', onUp);
   });
-  grid.appendChild(add);
 }
 
 /* Renders the inside of one note card — either preview or expanded inline editor */
 function renderCardContents(card, n, proj) {
   if (n.id === currentNoteId) {
     // EXPANDED — inline editor
+    const swatches = NOTE_COLORS.map(c => {
+      const active = (c.value === (n.color || '')) ? ' active' : '';
+      const noColorCls = !c.value ? ' no-color' : '';
+      const bg = c.value || 'var(--paper)';
+      return `<button class="color-swatch${active}${noColorCls}" data-color="${c.value}" style="background:${bg};" title="${c.name || 'no color'}"></button>`;
+    }).join('');
+
     card.innerHTML = `
       <div class="note-inline-editor">
         <div class="note-inline-header">
@@ -2101,6 +2234,10 @@ function renderCardContents(card, n, proj) {
           <button class="tag-btn" data-tag="">Clear</button>
           <span style="flex:1"></span>
           <button class="note-inline-collapse" data-action="delete" style="color:#b3261e;">Delete</button>
+        </div>
+        <div class="note-color-row">
+          <span class="tag-label">Color</span>
+          ${swatches}
         </div>
         <div class="note-inline-toolbar">
           <button class="toolbar-btn bold" data-cmd="bold" title="Bold (Cmd+B)">B</button>
@@ -2209,6 +2346,19 @@ function renderCardContents(card, n, proj) {
       });
     });
 
+    // Color swatches
+    card.querySelectorAll('.color-swatch').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        n.color = btn.dataset.color || '';
+        save();
+        if (n.color) card.style.background = n.color;
+        else card.style.background = '';
+        card.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
+        btn.classList.add('active');
+      });
+    });
+
     // Done (collapse) and Delete buttons
     card.querySelectorAll('.note-inline-collapse').forEach(btn => {
       btn.addEventListener('click', e => {
@@ -2218,15 +2368,15 @@ function renderCardContents(card, n, proj) {
           proj.notes = proj.notes.filter(x => x.id !== n.id);
           // Folder must contain at least one note
           if (proj.notes.length === 0) {
-            proj.notes.push({ id: uid(), title: '', html: '', tag: '', updatedAt: Date.now() });
+            proj.notes.push({ id: uid(), title: '', html: '', tag: '', x: 40, y: 40, updatedAt: Date.now() });
           }
           currentNoteId = null;
           save(true);
-          renderNotesGrid();
+          renderCanvas();
           renderProjects();
         } else {
           currentNoteId = null;
-          renderNotesGrid();
+          renderCanvas();
           renderProjects();
         }
       });
@@ -2249,16 +2399,13 @@ function renderCardContents(card, n, proj) {
       if (!confirm('Delete this note?')) return;
       proj.notes = proj.notes.filter(x => x.id !== n.id);
       if (proj.notes.length === 0) {
-        proj.notes.push({ id: uid(), title: '', html: '', tag: '', updatedAt: Date.now() });
+        proj.notes.push({ id: uid(), title: '', html: '', tag: '', x: 40, y: 40, updatedAt: Date.now() });
       }
       save(true);
-      renderNotesGrid();
+      renderCanvas();
       renderProjects();
     });
-    card.addEventListener('click', () => {
-      currentNoteId = n.id;
-      renderNotesGrid();
-    });
+    // Click-to-expand is handled by attachCardDrag (it distinguishes click from drag)
   }
 }
 
