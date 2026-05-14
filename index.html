@@ -6,6 +6,9 @@
 <title>Haystack — Adam Record</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="apple-touch-icon" href="favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300..700&display=swap">
 <style>
   /* Primary font: Iowan Old Style (built-in macOS system font) */
   /* Falls back to Charter, then Georgia. To add via Adobe Fonts later, */
@@ -39,7 +42,7 @@
     --tag-someday-bg: #F0E6F5;
     --tag-someday-ink: #4A2E5A;
     --serif: "Iowan Old Style", "Iowan Old Style BT", "Charter", "Charter BT", Georgia, serif;
-    --sans: "Iowan Old Style", "Iowan Old Style BT", "Charter", "Charter BT", Georgia, serif;
+    --sans: "Bricolage Grotesque", system-ui, -apple-system, sans-serif;
     --shadow: 0 1px 2px rgba(10,10,10,0.04);
   }
 
@@ -693,40 +696,47 @@
     width: 100%;
   }
 
-  /* Notes canvas (within a project) — masonry-style flow, newest leftmost */
+  /* Notes canvas (within a project) — freeform, drag-positioned cards */
   .canvas-scroll {
     flex: 1;
-    overflow-y: auto;
-    overflow-x: hidden;
-    background: var(--bg);
+    overflow: auto;
+    background: var(--paper-sunken);
+    position: relative;
   }
   .notes-canvas {
-    column-width: 220px;
-    column-gap: 14px;
-    padding: 18px 22px 60px;
-    max-width: 1400px;
-    margin: 0 auto;
+    position: relative;
+    width: 4000px;
+    height: 3000px;
+    background-image: radial-gradient(rgba(0,0,0,0.07) 1px, transparent 1px);
+    background-size: 24px 24px;
   }
   .note-card {
-    display: inline-block;
-    width: 100%;
+    position: absolute;
+    width: 240px;
     background: var(--paper);
     border: 1px solid var(--line);
     border-radius: 3px;
     padding: 10px 12px 8px;
-    margin: 0 0 14px;
-    box-shadow: 0 1px 2px rgba(10,10,10,0.04);
-    break-inside: avoid;
+    box-shadow: 0 1px 2px rgba(10,10,10,0.06);
     transition: box-shadow 0.18s ease, border-color 0.18s ease;
-    position: relative;
+    cursor: grab;
   }
   .note-card:hover {
     border-color: var(--line-strong);
-    box-shadow: 0 3px 8px rgba(27,27,27,0.06);
+    box-shadow: 0 4px 10px rgba(27,27,27,0.08);
   }
   .note-card:focus-within {
+    cursor: default;
     border-color: var(--ink);
-    box-shadow: 0 4px 12px rgba(27,27,27,0.10);
+    box-shadow: 0 6px 16px rgba(27,27,27,0.12);
+    z-index: 5;
+  }
+  .note-card.dragging {
+    cursor: grabbing;
+    opacity: 0.94;
+    z-index: 50;
+    box-shadow: 0 12px 28px rgba(27,27,27,0.18);
+    transition: none;
   }
 
   /* Card pieces */
@@ -734,10 +744,10 @@
   .note-card-title {
     flex: 1;
     border: none; outline: none; background: transparent;
-    font-family: var(--serif); font-size: 14px; font-weight: 600;
+    font-family: var(--serif); font-size: 20pt; font-weight: 500;
     color: var(--ink);
     padding: 1px 0;
-    line-height: 1.25;
+    line-height: 1.15;
   }
   .note-card-title::placeholder { color: var(--mute); font-style: italic; font-weight: 400; }
   .note-card-delete {
@@ -757,36 +767,35 @@
 
   .note-card-content {
     outline: none;
-    font-family: var(--serif);
-    font-size: 12.5px;
-    line-height: 1.45;
+    font-family: var(--sans);
+    font-size: 12pt;
+    line-height: 1.4;
     color: var(--ink);
-    margin-top: 5px;
+    margin-top: 6px;
     min-height: 16px;
   }
   .note-card-content:empty::before {
     content: 'Write something…';
     color: var(--mute);
     font-style: italic;
-    font-size: 12px;
   }
-  .note-card-content h1 { font-family: var(--serif); font-size: 15px; font-weight: 600; margin: 7px 0 3px; }
-  .note-card-content h2 { font-family: var(--serif); font-size: 13px; font-weight: 600; margin: 6px 0 2px; }
-  .note-card-content p { margin: 3px 0; }
-  .note-card-content ul, .note-card-content ol { padding-left: 18px; margin: 3px 0; }
-  .note-card-content li { margin: 1px 0; }
+  .note-card-content h1 { font-family: var(--sans); font-size: 16pt; font-weight: 700; margin: 8px 0 3px; }
+  .note-card-content h2 { font-family: var(--sans); font-size: 14pt; font-weight: 700; margin: 6px 0 2px; }
+  .note-card-content p { margin: 4px 0; }
+  .note-card-content ul, .note-card-content ol { padding-left: 18px; margin: 4px 0; }
+  .note-card-content li { margin: 2px 0; }
   .note-card-content a { color: var(--accent); text-decoration: underline; }
   .note-card-content img { max-width: 100%; border-radius: 2px; margin: 4px 0; display: block; }
   .note-card-content label.check-item { display: inline-flex; align-items: flex-start; gap: 5px; }
-  .note-card-content label.check-item input[type="checkbox"] { margin: 0; transform: translateY(2px) scale(0.85); }
+  .note-card-content label.check-item input[type="checkbox"] { margin: 0; transform: translateY(2px); }
 
   /* Inline tag chip — always visible if tag is set */
   .note-tag-chip {
     display: inline-block;
-    margin-top: 6px;
-    font-family: var(--serif);
+    margin-top: 8px;
+    font-family: var(--sans);
     font-style: italic;
-    font-size: 10px;
+    font-size: 10pt;
     padding: 1px 8px;
     border-radius: 99px;
     letter-spacing: 0.2px;
@@ -805,7 +814,7 @@
   .note-controls-row { display: flex; flex-wrap: wrap; align-items: center; gap: 3px; }
   .note-controls-row .tag-label {
     font-family: var(--sans);
-    font-size: 9px;
+    font-size: 9pt;
     color: var(--mute);
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -813,12 +822,14 @@
     font-style: normal;
   }
   .note-controls-row .tag-btn {
-    font-size: 10px;
-    padding: 1px 6px;
+    font-family: var(--sans);
+    font-size: 10pt;
+    padding: 1px 7px;
     border-radius: 99px;
   }
   .note-controls-row .toolbar-btn {
-    font-size: 11px;
+    font-family: var(--sans);
+    font-size: 11pt;
     padding: 2px 6px;
     min-width: 22px;
   }
@@ -853,7 +864,7 @@
     transform: rotate(-45deg);
   }
 
-  /* "+ Note" header button (still in fs-header) */
+  /* "+ Note" header button */
   .fs-add-btn {
     background: var(--ink);
     color: var(--paper);
@@ -2031,7 +2042,7 @@ function renderProjects() {
   add.className = 'project-add';
   add.textContent = '+ new project';
   add.addEventListener('click', () => {
-    const firstNote = { id: uid(), title: '', html: '', tag: '', updatedAt: Date.now() };
+    const firstNote = { id: uid(), title: '', html: '', tag: '', x: 40, y: 40, updatedAt: Date.now() };
     const newProj = { id: uid(), name: '', notes: [firstNote] };
     data.projects.push(newProj);
     save();
@@ -2049,17 +2060,12 @@ function openProject(id) {
   if (!proj) return;
   // Defensive: ensure folder has at least one note (handles legacy data)
   if (!proj.notes || proj.notes.length === 0) {
-    proj.notes = [{ id: uid(), title: '', html: '', tag: '', updatedAt: Date.now() }];
+    proj.notes = [{ id: uid(), title: '', html: '', tag: '', x: 40, y: 40, updatedAt: Date.now() }];
     save();
   }
   document.getElementById('project-title-input').value = proj.name;
   document.getElementById('project-view').classList.add('open');
   renderCanvas();
-  // Scroll back to top so newest cards are in view
-  setTimeout(() => {
-    const s = document.getElementById('canvas-scroll');
-    if (s) s.scrollTop = 0;
-  }, 30);
 }
 function closeProject() {
   currentProjectId = null;
@@ -2067,19 +2073,19 @@ function closeProject() {
   renderProjects();
 }
 
-// "+ Note" header button — drops a fresh card at the top of the canvas
+// "+ Note" header button — drops a fresh card in the visible part of the canvas
 document.getElementById('project-add-note').addEventListener('click', () => {
   const proj = data.projects.find(p => p.id === currentProjectId);
   if (!proj) return;
-  const newNote = { id: uid(), title: '', html: '', tag: '', color: '', updatedAt: Date.now() };
+  const s = document.getElementById('canvas-scroll');
+  const x = (s.scrollLeft || 0) + 40;
+  const y = (s.scrollTop  || 0) + 40;
+  const newNote = { id: uid(), title: '', html: '', tag: '', color: '', x, y, updatedAt: Date.now() };
   proj.notes.push(newNote);
   save();
   renderCanvas();
   renderProjects();
-  // Scroll to top so the new card is in view, then focus its title
   setTimeout(() => {
-    const s = document.getElementById('canvas-scroll');
-    if (s) s.scrollTop = 0;
     const inp = document.querySelector(`.note-card[data-id="${newNote.id}"] .note-card-title`);
     if (inp) inp.focus();
   }, 30);
@@ -2102,27 +2108,90 @@ const NOTE_COLORS = [
   { name: 'pink',       value: '#FFE3EF' },
 ];
 
+function ensureCardPositions(proj) {
+  // Auto-place any notes that don't have x/y yet (legacy data, new notes pre-placement)
+  let changed = false;
+  let i = 0;
+  proj.notes.forEach(n => {
+    if (typeof n.x !== 'number' || typeof n.y !== 'number') {
+      const col = i % 4;
+      const row = Math.floor(i / 4);
+      n.x = 30 + col * 260;
+      n.y = 30 + row * 200;
+      changed = true;
+    }
+    i++;
+  });
+  if (changed) save();
+}
+
 function renderCanvas() {
   const canvas = document.getElementById('notes-canvas');
   canvas.innerHTML = '';
   const proj = data.projects.find(p => p.id === currentProjectId);
   if (!proj) return;
+  ensureCardPositions(proj);
 
-  // Newest update first, leftmost (i.e. earliest in DOM order for CSS columns)
-  const sorted = [...proj.notes].sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
-
-  sorted.forEach(n => {
+  proj.notes.forEach(n => {
     const card = document.createElement('div');
     card.className = 'note-card';
     card.dataset.id = n.id;
+    card.style.left = (n.x || 0) + 'px';
+    card.style.top  = (n.y || 0) + 'px';
     if (n.color) card.style.background = n.color;
     renderCard(card, n, proj);
+    attachCardDrag(card, n, proj);
     canvas.appendChild(card);
   });
 }
 
 // alias for any leftover callers
 function renderNotesGrid() { renderCanvas(); }
+
+function attachCardDrag(card, n, proj) {
+  let downX, downY, origX, origY, isDragging, pointerId;
+
+  card.addEventListener('pointerdown', e => {
+    // Don't initiate drag from buttons / inputs / editable areas — those handle their own clicks
+    if (e.target.closest('button, input, textarea, [contenteditable]')) return;
+    if (e.button !== undefined && e.button !== 0) return;   // left button only
+
+    downX = e.clientX;
+    downY = e.clientY;
+    origX = n.x || 0;
+    origY = n.y || 0;
+    isDragging = false;
+    pointerId = e.pointerId;
+
+    function onMove(ev) {
+      const dx = ev.clientX - downX;
+      const dy = ev.clientY - downY;
+      if (!isDragging && (Math.abs(dx) > 4 || Math.abs(dy) > 4)) {
+        isDragging = true;
+        card.classList.add('dragging');
+        try { card.setPointerCapture(pointerId); } catch {}
+      }
+      if (isDragging) {
+        n.x = Math.max(0, origX + dx);
+        n.y = Math.max(0, origY + dy);
+        card.style.left = n.x + 'px';
+        card.style.top  = n.y + 'px';
+      }
+    }
+    function onUp(ev) {
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerup', onUp);
+      if (isDragging) {
+        card.classList.remove('dragging');
+        n.updatedAt = Date.now();
+        save();
+      }
+      // No-op on simple click — cards are always editable; focus arrives naturally on input/contenteditable clicks
+    }
+    window.addEventListener('pointermove', onMove);
+    window.addEventListener('pointerup', onUp);
+  });
+}
 
 function renderCard(card, n, proj) {
   const swatches = NOTE_COLORS.map(c => {
@@ -2286,7 +2355,7 @@ function renderCard(card, n, proj) {
     proj.notes = proj.notes.filter(x => x.id !== n.id);
     // Folder must contain at least one note
     if (proj.notes.length === 0) {
-      proj.notes.push({ id: uid(), title: '', html: '', tag: '', updatedAt: Date.now() });
+      proj.notes.push({ id: uid(), title: '', html: '', tag: '', x: 40, y: 40, updatedAt: Date.now() });
     }
     save(true);
     renderCanvas();
