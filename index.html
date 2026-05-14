@@ -1106,6 +1106,62 @@
   }
   .saved-flash.show { opacity: 1; transform: translateY(0); }
 
+  /* ───── Inline note expansion (card grid → expand-in-place editor) ───── */
+  .note-card.expanded {
+    grid-column: 1 / -1;
+    cursor: default;
+    background: var(--paper);
+    padding: 22px 26px;
+    transition: none;
+    transform: none;
+    min-height: auto;
+  }
+  .note-card.expanded:hover { transform: none; }
+  .note-card.expanded .note-card-body,
+  .note-card.expanded .note-card-delete { display: none; }
+
+  .note-inline-editor { display: flex; flex-direction: column; gap: 12px; }
+  .note-inline-toolbar { display: flex; align-items: center; gap: 4px; padding-bottom: 8px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+  .note-inline-toolbar .toolbar-btn,
+  .note-inline-toolbar .toolbar-sep { /* inherit base toolbar styles */ }
+  .note-inline-header { display: flex; align-items: center; gap: 12px; }
+  .note-inline-title {
+    flex: 1;
+    border: none; outline: none; background: transparent;
+    font-family: var(--serif); font-size: 26px; font-weight: 500;
+    color: var(--ink);
+  }
+  .note-inline-collapse {
+    background: transparent; border: 1px solid var(--line-strong);
+    padding: 4px 12px; border-radius: 4px;
+    font-family: var(--sans); font-size: 13px; color: var(--soft);
+    cursor: pointer;
+  }
+  .note-inline-collapse:hover { background: var(--paper-sunken); }
+  .note-inline-tag-row { display: flex; align-items: center; gap: 8px; }
+  .note-inline-content {
+    min-height: 200px;
+    outline: none;
+    font-family: var(--serif); font-size: 16px; line-height: 1.6; color: var(--ink);
+    border: 1px solid var(--line); border-radius: 4px;
+    padding: 14px 16px;
+  }
+  .note-inline-content:focus { border-color: var(--ink); }
+  .note-inline-content h1 { font-family: var(--serif); font-size: 24px; font-weight: 500; margin: 14px 0 8px; }
+  .note-inline-content h2 { font-family: var(--serif); font-size: 19px; font-weight: 500; margin: 12px 0 6px; }
+  .note-inline-content p { margin: 8px 0; }
+  .note-inline-content ul, .note-inline-content ol { padding-left: 24px; margin: 8px 0; }
+  .note-inline-content li { margin: 3px 0; }
+  .note-inline-content a { color: var(--accent); text-decoration: underline; }
+  .note-inline-content img { max-width: 100%; border-radius: 3px; margin: 8px 0; display: block; }
+  .note-inline-content label.check-item { display: inline-flex; align-items: center; gap: 6px; }
+  .note-inline-content label.check-item input[type="checkbox"] { margin: 0; transform: translateY(1px); }
+  .note-inline-content:empty::before {
+    content: 'Start writing…';
+    color: var(--mute);
+    font-style: italic;
+  }
+
   /* ───── Auth gate (sign-in screen) ───── */
   .auth-gate {
     position: fixed; inset: 0;
@@ -1334,53 +1390,7 @@
   </div>
 </div>
 
-<!-- ─────────────────────────── NOTE EDITOR FULLSCREEN ─────────── -->
-<div class="fullscreen" id="note-view">
-  <div class="fs-header">
-    <div style="display:flex; align-items:center; gap:16px; flex:1;">
-      <button class="fs-close" id="note-back" style="font-size:18px;">← Back</button>
-      <span class="masthead-sub" style="font-style:italic; color:var(--mute);" id="note-breadcrumb"></span>
-    </div>
-    <button class="fs-close" id="note-close">×</button>
-  </div>
-  <div class="fs-body note-editor">
-    <div class="note-cover-area" id="note-cover-area">
-      <div class="note-cover-actions">
-        <button id="note-cover-url">+ Cover URL</button>
-        <button id="note-cover-upload">Upload</button>
-        <button id="note-cover-clear" style="display:none;">Clear</button>
-      </div>
-    </div>
-
-    <input type="text" class="note-title-input" id="note-title-input" placeholder="Untitled note">
-
-    <div class="note-tag-row">
-      <span class="tag-label">Tag</span>
-      <button class="tag-btn t-today" data-tag="today">#Today</button>
-      <button class="tag-btn t-tomorrow" data-tag="tomorrow">#Tomorrow</button>
-      <button class="tag-btn t-someday" data-tag="someday">#Someday</button>
-      <button class="tag-btn" data-tag="">Clear</button>
-    </div>
-
-    <div class="editor-toolbar">
-      <button class="toolbar-btn bold" data-cmd="bold" title="Bold (Cmd+B)">B</button>
-      <button class="toolbar-btn italic" data-cmd="italic" title="Italic (Cmd+I)">I</button>
-      <button class="toolbar-btn strike" data-cmd="strikeThrough" title="Strikethrough">S</button>
-      <div class="toolbar-sep"></div>
-      <button class="toolbar-btn" data-cmd="h1" title="Heading 1">H1</button>
-      <button class="toolbar-btn" data-cmd="h2" title="Heading 2">H2</button>
-      <button class="toolbar-btn" data-cmd="paragraph" title="Paragraph">¶</button>
-      <div class="toolbar-sep"></div>
-      <button class="toolbar-btn" data-cmd="ul" title="Bullet list">• List</button>
-      <button class="toolbar-btn" data-cmd="ol" title="Numbered list">1. List</button>
-      <button class="toolbar-btn" data-cmd="check" title="Checklist item">☐</button>
-      <div class="toolbar-sep"></div>
-      <button class="toolbar-btn" data-cmd="link" title="Insert link">Link</button>
-      <button class="toolbar-btn" data-cmd="image" title="Insert image">Image</button>
-    </div>
-    <div class="note-content" id="note-content" contenteditable="true"></div>
-  </div>
-</div>
+<!-- (Note editor lives inline inside note cards now — see renderNotesGrid) -->
 
 <!-- ─────────────────────────── MODALS ─────────────────────────── -->
 <div class="modal-backdrop" id="people-modal">
@@ -2001,7 +2011,8 @@ function renderProjects() {
   add.className = 'project-add';
   add.textContent = '+ new project';
   add.addEventListener('click', () => {
-    const newProj = { id: uid(), name: '', notes: [] };
+    const firstNote = { id: uid(), title: '', html: '', tag: '', updatedAt: Date.now() };
+    const newProj = { id: uid(), name: '', notes: [firstNote] };
     data.projects.push(newProj);
     save();
     renderProjects();
@@ -2014,14 +2025,21 @@ function renderProjects() {
 let currentProjectId = null;
 function openProject(id) {
   currentProjectId = id;
+  currentNoteId = null;
   const proj = data.projects.find(p => p.id === id);
   if (!proj) return;
+  // Defensive: ensure folder has at least one note (handles legacy data)
+  if (!proj.notes || proj.notes.length === 0) {
+    proj.notes = [{ id: uid(), title: '', html: '', tag: '', updatedAt: Date.now() }];
+    save();
+  }
   document.getElementById('project-title-input').value = proj.name;
   document.getElementById('project-view').classList.add('open');
   renderNotesGrid();
 }
 function closeProject() {
   currentProjectId = null;
+  currentNoteId = null;
   document.getElementById('project-view').classList.remove('open');
   renderProjects();
 }
@@ -2036,14 +2054,190 @@ function renderNotesGrid() {
   grid.innerHTML = '';
   const proj = data.projects.find(p => p.id === currentProjectId);
   if (!proj) return;
+
   proj.notes.forEach(n => {
     const card = document.createElement('div');
     card.className = 'note-card';
+    card.dataset.id = n.id;
+    if (n.id === currentNoteId) card.classList.add('expanded');
+    renderCardContents(card, n, proj);
+    grid.appendChild(card);
+  });
+
+  const add = document.createElement('div');
+  add.className = 'note-add';
+  add.textContent = '+ new note';
+  add.addEventListener('click', () => {
+    const newNote = { id: uid(), title: '', html: '', tag: '', updatedAt: Date.now() };
+    proj.notes.push(newNote);
+    save();
+    currentNoteId = newNote.id;
+    renderNotesGrid();
+    renderProjects();
+    // Focus the new card's title
+    setTimeout(() => {
+      const inp = document.querySelector(`.note-card[data-id="${newNote.id}"] .note-inline-title`);
+      if (inp) inp.focus();
+    }, 30);
+  });
+  grid.appendChild(add);
+}
+
+/* Renders the inside of one note card — either preview or expanded inline editor */
+function renderCardContents(card, n, proj) {
+  if (n.id === currentNoteId) {
+    // EXPANDED — inline editor
+    card.innerHTML = `
+      <div class="note-inline-editor">
+        <div class="note-inline-header">
+          <input type="text" class="note-inline-title" placeholder="Untitled note">
+          <button class="note-inline-collapse">Done</button>
+        </div>
+        <div class="note-inline-tag-row">
+          <span class="tag-label">Tag</span>
+          <button class="tag-btn t-today" data-tag="today">#Today</button>
+          <button class="tag-btn t-tomorrow" data-tag="tomorrow">#Tomorrow</button>
+          <button class="tag-btn t-someday" data-tag="someday">#Someday</button>
+          <button class="tag-btn" data-tag="">Clear</button>
+          <span style="flex:1"></span>
+          <button class="note-inline-collapse" data-action="delete" style="color:#b3261e;">Delete</button>
+        </div>
+        <div class="note-inline-toolbar">
+          <button class="toolbar-btn bold" data-cmd="bold" title="Bold (Cmd+B)">B</button>
+          <button class="toolbar-btn italic" data-cmd="italic" title="Italic (Cmd+I)">I</button>
+          <button class="toolbar-btn strike" data-cmd="strikeThrough" title="Strikethrough">S</button>
+          <div class="toolbar-sep"></div>
+          <button class="toolbar-btn" data-cmd="h1" title="Heading 1">H1</button>
+          <button class="toolbar-btn" data-cmd="h2" title="Heading 2">H2</button>
+          <button class="toolbar-btn" data-cmd="paragraph" title="Paragraph">¶</button>
+          <div class="toolbar-sep"></div>
+          <button class="toolbar-btn" data-cmd="ul" title="Bullet list">• List</button>
+          <button class="toolbar-btn" data-cmd="ol" title="Numbered list">1. List</button>
+          <button class="toolbar-btn" data-cmd="check" title="Checklist item">☐</button>
+          <div class="toolbar-sep"></div>
+          <button class="toolbar-btn" data-cmd="link" title="Insert link">Link</button>
+          <button class="toolbar-btn" data-cmd="image" title="Insert image">Image</button>
+        </div>
+        <div class="note-inline-content" contenteditable="true"></div>
+      </div>
+    `;
+    const titleInput = card.querySelector('.note-inline-title');
+    const contentEl  = card.querySelector('.note-inline-content');
+    titleInput.value = n.title || '';
+    contentEl.innerHTML = n.html || '';
+    updateTagButtons(card, n);
+
+    // Title input
+    titleInput.addEventListener('input', e => {
+      n.title = e.target.value; n.updatedAt = Date.now(); save();
+    });
+
+    // Content edits
+    contentEl.addEventListener('input', () => {
+      n.html = contentEl.innerHTML; n.updatedAt = Date.now(); save();
+    });
+
+    // Checkbox persistence
+    contentEl.addEventListener('click', e => {
+      if (e.target.matches('input[type="checkbox"]')) {
+        setTimeout(() => {
+          if (e.target.checked) e.target.setAttribute('checked', 'checked');
+          else e.target.removeAttribute('checked');
+          n.html = contentEl.innerHTML; save();
+        }, 0);
+      }
+    });
+
+    // Image paste
+    contentEl.addEventListener('paste', e => {
+      const items = (e.clipboardData || {}).items;
+      if (!items) return;
+      for (const item of items) {
+        if (item.type && item.type.startsWith('image/')) {
+          e.preventDefault();
+          const file = item.getAsFile();
+          const reader = new FileReader();
+          reader.onload = ev => {
+            document.execCommand('insertHTML', false, `<img src="${ev.target.result}" alt="">`);
+          };
+          reader.readAsDataURL(file);
+          return;
+        }
+      }
+    });
+
+    // Toolbar
+    card.querySelectorAll('.note-inline-toolbar .toolbar-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const cmd = btn.dataset.cmd;
+        contentEl.focus();
+        switch (cmd) {
+          case 'bold': document.execCommand('bold'); break;
+          case 'italic': document.execCommand('italic'); break;
+          case 'strikeThrough': document.execCommand('strikeThrough'); break;
+          case 'h1': document.execCommand('formatBlock', false, 'H1'); break;
+          case 'h2': document.execCommand('formatBlock', false, 'H2'); break;
+          case 'paragraph': document.execCommand('formatBlock', false, 'P'); break;
+          case 'ul': document.execCommand('insertUnorderedList'); break;
+          case 'ol': document.execCommand('insertOrderedList'); break;
+          case 'check':
+            document.execCommand('insertHTML', false,
+              '<label class="check-item"><input type="checkbox"><span>&nbsp;item</span></label><div><br></div>');
+            break;
+          case 'link': {
+            const url = prompt('Link URL:');
+            if (url) document.execCommand('createLink', false, url);
+            break;
+          }
+          case 'image': {
+            const url = prompt('Image URL (or paste an image directly into the note):');
+            if (url) document.execCommand('insertHTML', false, `<img src="${url}" alt="">`);
+            break;
+          }
+        }
+        n.html = contentEl.innerHTML; save();
+      });
+    });
+
+    // Tag buttons
+    card.querySelectorAll('.note-inline-tag-row .tag-btn').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        n.tag = btn.dataset.tag || '';
+        save();
+        updateTagButtons(card, n);
+      });
+    });
+
+    // Done (collapse) and Delete buttons
+    card.querySelectorAll('.note-inline-collapse').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        if (btn.dataset.action === 'delete') {
+          if (!confirm('Delete this note?')) return;
+          proj.notes = proj.notes.filter(x => x.id !== n.id);
+          // Folder must contain at least one note
+          if (proj.notes.length === 0) {
+            proj.notes.push({ id: uid(), title: '', html: '', tag: '', updatedAt: Date.now() });
+          }
+          currentNoteId = null;
+          save(true);
+          renderNotesGrid();
+          renderProjects();
+        } else {
+          currentNoteId = null;
+          renderNotesGrid();
+          renderProjects();
+        }
+      });
+    });
+
+  } else {
+    // COLLAPSED — preview card
     let preview = (n.html || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
     const tagHTML = n.tag ? `<span class="note-card-tag tag-${n.tag}">#${n.tag}</span>` : '';
     card.innerHTML = `
-      <button class="note-card-delete">×</button>
-      ${n.cover ? `<div class="note-cover" style="background-image:url('${n.cover.replace(/'/g, "\\'")}')"></div>` : ''}
+      <button class="note-card-delete" title="Delete note">×</button>
       <div class="note-card-body">
         <div class="note-card-title">${(n.title || 'Untitled').replace(/</g,'&lt;')}</div>
         <div class="note-card-preview">${preview.replace(/</g,'&lt;') || '<em style="color:var(--mute)">empty</em>'}</div>
@@ -2054,180 +2248,28 @@ function renderNotesGrid() {
       e.stopPropagation();
       if (!confirm('Delete this note?')) return;
       proj.notes = proj.notes.filter(x => x.id !== n.id);
+      if (proj.notes.length === 0) {
+        proj.notes.push({ id: uid(), title: '', html: '', tag: '', updatedAt: Date.now() });
+      }
       save(true);
       renderNotesGrid();
       renderProjects();
     });
-    card.addEventListener('click', () => openNote(n.id));
-    grid.appendChild(card);
-  });
-  const add = document.createElement('div');
-  add.className = 'note-add';
-  add.textContent = '+ new note';
-  add.addEventListener('click', () => {
-    const newNote = { id: uid(), title: '', html: '', tag: '', cover: '', updatedAt: Date.now() };
-    proj.notes.push(newNote);
-    save();
-    renderNotesGrid();
-    renderProjects();
-    openNote(newNote.id);
-    setTimeout(() => document.getElementById('note-title-input').focus(), 100);
-  });
-  grid.appendChild(add);
+    card.addEventListener('click', () => {
+      currentNoteId = n.id;
+      renderNotesGrid();
+    });
+  }
 }
 
-/* ════════════════ NOTE EDITOR ════════════════ */
+function updateTagButtons(card, n) {
+  card.querySelectorAll('.note-inline-tag-row .tag-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.tag === (n.tag || ''));
+  });
+}
+
+/* ════════════════ NOTE EDITOR (inline — state only) ════════════════ */
 let currentNoteId = null;
-function openNote(noteId) {
-  const proj = data.projects.find(p => p.id === currentProjectId);
-  const note = proj.notes.find(n => n.id === noteId);
-  if (!note) return;
-  currentNoteId = noteId;
-
-  document.getElementById('note-breadcrumb').textContent = proj.name || 'Untitled';
-  document.getElementById('note-title-input').value = note.title;
-  document.getElementById('note-content').innerHTML = note.html || '';
-  renderNoteCover(note);
-  renderNoteTag(note);
-  document.getElementById('note-view').classList.add('open');
-}
-function closeNote() {
-  currentNoteId = null;
-  document.getElementById('note-view').classList.remove('open');
-  renderNotesGrid();
-  renderProjects();
-}
-function renderNoteCover(note) {
-  const cover = document.getElementById('note-cover-area');
-  const clearBtn = document.getElementById('note-cover-clear');
-  if (note.cover) {
-    cover.style.backgroundImage = `url('${note.cover.replace(/'/g, "\\'")}')`;
-    clearBtn.style.display = '';
-  } else {
-    cover.style.backgroundImage = '';
-    clearBtn.style.display = 'none';
-  }
-}
-function renderNoteTag(note) {
-  document.querySelectorAll('.tag-btn').forEach(b => {
-    b.classList.toggle('active', b.dataset.tag === (note.tag || ''));
-  });
-}
-function currentNote() {
-  const proj = data.projects.find(p => p.id === currentProjectId);
-  return proj && proj.notes.find(n => n.id === currentNoteId);
-}
-document.getElementById('note-close').addEventListener('click', closeNote);
-document.getElementById('note-back').addEventListener('click', closeNote);
-document.getElementById('note-title-input').addEventListener('input', e => {
-  const n = currentNote();
-  if (n) { n.title = e.target.value; n.updatedAt = Date.now(); save(); }
-});
-document.getElementById('note-content').addEventListener('input', () => {
-  const n = currentNote();
-  if (n) { n.html = document.getElementById('note-content').innerHTML; n.updatedAt = Date.now(); save(); }
-});
-// Toggle checkbox checked attribute on click for persistence
-document.getElementById('note-content').addEventListener('click', e => {
-  if (e.target.matches('input[type="checkbox"]')) {
-    // Defer to let browser toggle the IDL state
-    setTimeout(() => {
-      if (e.target.checked) e.target.setAttribute('checked', 'checked');
-      else e.target.removeAttribute('checked');
-      const n = currentNote();
-      if (n) { n.html = document.getElementById('note-content').innerHTML; save(); }
-    }, 0);
-  }
-});
-// Paste image handler
-document.getElementById('note-content').addEventListener('paste', e => {
-  const items = (e.clipboardData || {}).items;
-  if (!items) return;
-  for (const item of items) {
-    if (item.type && item.type.startsWith('image/')) {
-      e.preventDefault();
-      const file = item.getAsFile();
-      const reader = new FileReader();
-      reader.onload = ev => {
-        document.execCommand('insertHTML', false, `<img src="${ev.target.result}" alt="">`);
-      };
-      reader.readAsDataURL(file);
-      return;
-    }
-  }
-});
-
-// Toolbar handlers
-document.querySelectorAll('.editor-toolbar .toolbar-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const cmd = btn.dataset.cmd;
-    const editor = document.getElementById('note-content');
-    editor.focus();
-    switch (cmd) {
-      case 'bold': document.execCommand('bold'); break;
-      case 'italic': document.execCommand('italic'); break;
-      case 'strikeThrough': document.execCommand('strikeThrough'); break;
-      case 'h1': document.execCommand('formatBlock', false, 'H1'); break;
-      case 'h2': document.execCommand('formatBlock', false, 'H2'); break;
-      case 'paragraph': document.execCommand('formatBlock', false, 'P'); break;
-      case 'ul': document.execCommand('insertUnorderedList'); break;
-      case 'ol': document.execCommand('insertOrderedList'); break;
-      case 'check':
-        document.execCommand('insertHTML', false,
-          '<label class="check-item"><input type="checkbox"><span>&nbsp;item</span></label><div><br></div>');
-        break;
-      case 'link': {
-        const url = prompt('Link URL:');
-        if (url) document.execCommand('createLink', false, url);
-        break;
-      }
-      case 'image': {
-        const url = prompt('Image URL (or paste an image directly into the note):');
-        if (url) document.execCommand('insertHTML', false, `<img src="${url}" alt="">`);
-        break;
-      }
-    }
-    const n = currentNote();
-    if (n) { n.html = document.getElementById('note-content').innerHTML; save(); }
-  });
-});
-// Tag buttons
-document.querySelectorAll('.note-tag-row .tag-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const n = currentNote();
-    if (!n) return;
-    n.tag = btn.dataset.tag || '';
-    save();
-    renderNoteTag(n);
-  });
-});
-// Cover buttons
-document.getElementById('note-cover-url').addEventListener('click', () => {
-  const url = prompt('Cover image URL:');
-  if (!url) return;
-  const n = currentNote();
-  if (n) { n.cover = url; save(); renderNoteCover(n); }
-});
-document.getElementById('note-cover-upload').addEventListener('click', () => {
-  const input = document.createElement('input');
-  input.type = 'file';
-  input.accept = 'image/*';
-  input.addEventListener('change', () => {
-    const file = input.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = ev => {
-      const n = currentNote();
-      if (n) { n.cover = ev.target.result; save(); renderNoteCover(n); }
-    };
-    reader.readAsDataURL(file);
-  });
-  input.click();
-});
-document.getElementById('note-cover-clear').addEventListener('click', () => {
-  const n = currentNote();
-  if (n) { n.cover = ''; save(); renderNoteCover(n); }
-});
 
 /* ════════════════ MODAL CONTROLS ════════════════ */
 function openModal(id) { document.getElementById(id).classList.add('open'); }
