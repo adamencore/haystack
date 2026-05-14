@@ -689,6 +689,18 @@
     transition: color 0.15s ease;
   }
   .fs-close:hover { color: var(--ink); }
+  .fs-back {
+    background: transparent;
+    border: none;
+    font-size: 22px;
+    color: var(--soft);
+    padding: 4px 10px 4px 0;
+    margin-right: 12px;
+    cursor: pointer;
+    line-height: 1;
+    transition: color 0.15s ease, transform 0.1s ease;
+  }
+  .fs-back:hover { color: var(--ink); transform: translateX(-2px); }
   .fs-body {
     padding: 32px;
     max-width: 1400px;
@@ -796,26 +808,42 @@
   .note-card-title {
     flex: 1;
     border: none; outline: none; background: transparent;
-    font-family: var(--serif); font-size: 20pt; font-weight: 500;
+    font-family: var(--serif); font-size: 17pt; font-weight: 500;
     color: var(--ink);
     padding: 1px 0;
-    line-height: 1.15;
+    line-height: 1.2;
   }
   .note-card-title::placeholder { color: var(--mute); font-style: italic; font-weight: 400; }
   .note-card-delete {
+    position: absolute;
+    top: 6px;
+    right: 8px;
     background: transparent;
     border: none;
     color: var(--mute);
-    font-size: 14px;
-    padding: 0 3px;
+    font-size: 16px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    padding: 0;
     cursor: pointer;
     opacity: 0;
-    transition: opacity 0.15s ease, color 0.15s ease;
+    transition: opacity 0.15s ease, color 0.15s ease, background 0.15s ease;
     line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3;
   }
-  .note-card:hover .note-card-delete,
-  .note-card:focus-within .note-card-delete { opacity: 1; }
-  .note-card-delete:hover { color: #b3261e; }
+  /* Reveal only when hovering the title area (or the button itself) */
+  .note-card-head:hover ~ .note-card-delete,
+  .note-card-delete:hover {
+    opacity: 1;
+  }
+  .note-card-delete:hover {
+    background: var(--paper-sunken);
+    color: #b3261e;
+  }
 
   .note-card-content {
     outline: none;
@@ -1473,8 +1501,8 @@
 <!-- ─────────────────────────── PROJECT FULLSCREEN ─────────────── -->
 <div class="fullscreen" id="project-view">
   <div class="fs-header">
+    <button class="fs-back" id="project-close" title="Back to dashboard">←</button>
     <input type="text" class="fs-title" id="project-title-input" placeholder="Untitled project">
-    <button class="fs-close" id="project-close">×</button>
   </div>
   <div class="project-main">
     <div class="project-toolbar" id="project-toolbar">
@@ -2288,8 +2316,8 @@ function renderCard(card, n, proj) {
   card.innerHTML = `
     <div class="note-card-head">
       <input type="text" class="note-card-title" placeholder="Untitled" />
-      <button class="note-card-delete" title="Delete note">×</button>
     </div>
+    <button class="note-card-delete" title="Delete note">×</button>
     <div class="note-card-content" contenteditable="true"></div>
     ${tagChipHTML}
     <div class="note-card-controls">
