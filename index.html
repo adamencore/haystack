@@ -658,7 +658,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 24px 32px;
+    padding: 16px 24px;
     border-bottom: 1px solid var(--line);
     background: var(--bg);
     position: sticky;
@@ -667,11 +667,11 @@
   }
   .fs-title {
     font-family: var(--serif);
-    font-size: 36px;
-    font-weight: 400;
+    font-size: 26px;
+    font-weight: 500;
     letter-spacing: -0.01em;
     color: var(--ink);
-    line-height: 1;
+    line-height: 1.1;
     flex: 1;
     background: none;
     border: none;
@@ -693,133 +693,152 @@
     width: 100%;
   }
 
-  /* Notes canvas (within a project) — freeform, drag-positioned cards */
+  /* Notes canvas (within a project) — masonry-style flow, newest leftmost */
   .canvas-scroll {
     flex: 1;
-    overflow: auto;
-    background: var(--paper-sunken);
-    position: relative;
+    overflow-y: auto;
+    overflow-x: hidden;
+    background: var(--bg);
   }
   .notes-canvas {
-    position: relative;
-    width: 4000px;
-    height: 3000px;
-    background-image: radial-gradient(rgba(0,0,0,0.08) 1px, transparent 1px);
-    background-size: 24px 24px;
-    background-position: 0 0;
+    column-width: 220px;
+    column-gap: 14px;
+    padding: 18px 22px 60px;
+    max-width: 1400px;
+    margin: 0 auto;
   }
   .note-card {
-    position: absolute;
+    display: inline-block;
+    width: 100%;
     background: var(--paper);
     border: 1px solid var(--line);
-    border-radius: 4px;
-    cursor: grab;
+    border-radius: 3px;
+    padding: 10px 12px 8px;
+    margin: 0 0 14px;
+    box-shadow: 0 1px 2px rgba(10,10,10,0.04);
+    break-inside: avoid;
     transition: box-shadow 0.18s ease, border-color 0.18s ease;
-    min-height: 80px;
-    width: 280px;
-    display: flex;
-    flex-direction: column;
-    box-shadow: 0 1px 3px rgba(10,10,10,0.06);
-    user-select: none;
+    position: relative;
   }
   .note-card:hover {
     border-color: var(--line-strong);
-    box-shadow: 0 4px 12px rgba(27,27,27,0.08);
+    box-shadow: 0 3px 8px rgba(27,27,27,0.06);
   }
-  .note-card.dragging {
-    cursor: grabbing;
-    opacity: 0.92;
-    z-index: 50;
-    box-shadow: 0 12px 28px rgba(27,27,27,0.18);
-    transition: none;
+  .note-card:focus-within {
+    border-color: var(--ink);
+    box-shadow: 0 4px 12px rgba(27,27,27,0.10);
   }
-  .note-card.expanded {
-    cursor: default;
-    width: 440px;
-    z-index: 20;
-    user-select: text;
-    box-shadow: 0 12px 32px rgba(27,27,27,0.14);
-    padding: 18px 20px;
-  }
-  .note-card.expanded:hover { box-shadow: 0 12px 32px rgba(27,27,27,0.14); }
-  .note-card-body { padding: 14px 16px; flex: 1; }
+
+  /* Card pieces */
+  .note-card-head { display: flex; align-items: flex-start; gap: 6px; }
   .note-card-title {
-    font-family: var(--serif);
-    font-size: 18px;
-    font-weight: 400;
-    line-height: 1.2;
+    flex: 1;
+    border: none; outline: none; background: transparent;
+    font-family: var(--serif); font-size: 14px; font-weight: 600;
     color: var(--ink);
-    margin-bottom: 8px;
+    padding: 1px 0;
+    line-height: 1.25;
   }
-  .note-card-preview {
-    font-family: var(--serif);
-    font-size: 13px;
+  .note-card-title::placeholder { color: var(--mute); font-style: italic; font-weight: 400; }
+  .note-card-delete {
+    background: transparent;
+    border: none;
     color: var(--mute);
-    line-height: 1.5;
-    overflow: hidden;
-    display: -webkit-box;
-    -webkit-line-clamp: 4;
-    -webkit-box-orient: vertical;
+    font-size: 14px;
+    padding: 0 3px;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.15s ease, color 0.15s ease;
+    line-height: 1;
   }
-  .note-card-tag {
-    display: inline-block;
-    margin-top: 10px;
+  .note-card:hover .note-card-delete,
+  .note-card:focus-within .note-card-delete { opacity: 1; }
+  .note-card-delete:hover { color: #b3261e; }
+
+  .note-card-content {
+    outline: none;
     font-family: var(--serif);
+    font-size: 12.5px;
+    line-height: 1.45;
+    color: var(--ink);
+    margin-top: 5px;
+    min-height: 16px;
+  }
+  .note-card-content:empty::before {
+    content: 'Write something…';
+    color: var(--mute);
     font-style: italic;
     font-size: 12px;
-    padding: 2px 10px;
+  }
+  .note-card-content h1 { font-family: var(--serif); font-size: 15px; font-weight: 600; margin: 7px 0 3px; }
+  .note-card-content h2 { font-family: var(--serif); font-size: 13px; font-weight: 600; margin: 6px 0 2px; }
+  .note-card-content p { margin: 3px 0; }
+  .note-card-content ul, .note-card-content ol { padding-left: 18px; margin: 3px 0; }
+  .note-card-content li { margin: 1px 0; }
+  .note-card-content a { color: var(--accent); text-decoration: underline; }
+  .note-card-content img { max-width: 100%; border-radius: 2px; margin: 4px 0; display: block; }
+  .note-card-content label.check-item { display: inline-flex; align-items: flex-start; gap: 5px; }
+  .note-card-content label.check-item input[type="checkbox"] { margin: 0; transform: translateY(2px) scale(0.85); }
+
+  /* Inline tag chip — always visible if tag is set */
+  .note-tag-chip {
+    display: inline-block;
+    margin-top: 6px;
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 10px;
+    padding: 1px 8px;
+    border-radius: 99px;
+    letter-spacing: 0.2px;
+  }
+
+  /* Controls panel — slides in when card has focus */
+  .note-card-controls {
+    margin-top: 8px;
+    padding-top: 7px;
+    border-top: 1px solid var(--line);
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+  }
+  .note-card:focus-within .note-card-controls { display: flex; }
+  .note-controls-row { display: flex; flex-wrap: wrap; align-items: center; gap: 3px; }
+  .note-controls-row .tag-label {
+    font-family: var(--sans);
+    font-size: 9px;
+    color: var(--mute);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-right: 4px;
+    font-style: normal;
+  }
+  .note-controls-row .tag-btn {
+    font-size: 10px;
+    padding: 1px 6px;
     border-radius: 99px;
   }
-  .tag-today    { background: var(--tag-today-bg);    color: var(--tag-today-ink); }
-  .tag-tomorrow { background: var(--tag-tomorrow-bg); color: var(--tag-tomorrow-ink); }
-  .tag-someday  { background: var(--tag-someday-bg);  color: var(--tag-someday-ink); }
-  .note-card-delete {
-    position: absolute;
-    top: 6px;
-    right: 8px;
-    background: rgba(255,255,255,0.92);
-    color: var(--soft);
-    width: 22px;
-    height: 22px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
-    opacity: 0;
-    transition: opacity 0.15s ease;
-    z-index: 2;
+  .note-controls-row .toolbar-btn {
+    font-size: 11px;
+    padding: 2px 6px;
+    min-width: 22px;
   }
-  .note-card:hover .note-card-delete { opacity: 1; }
-  .note-card-delete:hover { background: var(--ink); color: var(--paper); }
-
-  /* "+ Note" button lives in the fs-header now (no in-canvas add card) */
-  .fs-add-btn {
-    background: var(--ink);
-    color: var(--paper);
-    border: none;
-    padding: 8px 16px;
-    border-radius: 4px;
-    font-family: var(--sans);
-    font-size: 13px;
-    cursor: pointer;
-    margin-right: 12px;
-    transition: background 0.15s ease;
+  .note-controls-row .toolbar-sep {
+    width: 1px;
+    background: var(--line);
+    margin: 0 2px;
+    align-self: stretch;
   }
-  .fs-add-btn:hover { background: var(--soft); }
 
-  /* Color picker swatches (in expanded card) */
-  .note-color-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-  .note-color-row .tag-label { margin-right: 4px; }
+  /* Color picker swatches */
   .color-swatch {
-    width: 22px; height: 22px;
+    width: 14px; height: 14px;
     border-radius: 50%;
     border: 1px solid var(--line-strong);
     cursor: pointer;
     padding: 0;
     transition: transform 0.1s ease;
   }
-  .color-swatch:hover { transform: scale(1.1); }
+  .color-swatch:hover { transform: scale(1.2); }
   .color-swatch.active { box-shadow: 0 0 0 2px var(--ink); }
   .color-swatch.no-color {
     background: var(--paper);
@@ -829,10 +848,25 @@
     content: '';
     position: absolute;
     top: 50%; left: 10%; right: 10%;
-    height: 1.5px;
+    height: 1px;
     background: var(--mute);
     transform: rotate(-45deg);
   }
+
+  /* "+ Note" header button (still in fs-header) */
+  .fs-add-btn {
+    background: var(--ink);
+    color: var(--paper);
+    border: none;
+    padding: 6px 14px;
+    border-radius: 4px;
+    font-family: var(--sans);
+    font-size: 12px;
+    cursor: pointer;
+    margin-right: 12px;
+    transition: background 0.15s ease;
+  }
+  .fs-add-btn:hover { background: var(--soft); }
 
   /* Note editor */
   .note-editor {
@@ -1146,52 +1180,6 @@
     z-index: 300;
   }
   .saved-flash.show { opacity: 1; transform: translateY(0); }
-
-  /* ───── Inline note expansion content layout ───── */
-  .note-card.expanded .note-card-body,
-  .note-card.expanded .note-card-delete { display: none; }
-
-  .note-inline-editor { display: flex; flex-direction: column; gap: 12px; }
-  .note-inline-toolbar { display: flex; align-items: center; gap: 4px; padding-bottom: 8px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
-  .note-inline-toolbar .toolbar-btn,
-  .note-inline-toolbar .toolbar-sep { /* inherit base toolbar styles */ }
-  .note-inline-header { display: flex; align-items: center; gap: 12px; }
-  .note-inline-title {
-    flex: 1;
-    border: none; outline: none; background: transparent;
-    font-family: var(--serif); font-size: 26px; font-weight: 500;
-    color: var(--ink);
-  }
-  .note-inline-collapse {
-    background: transparent; border: 1px solid var(--line-strong);
-    padding: 4px 12px; border-radius: 4px;
-    font-family: var(--sans); font-size: 13px; color: var(--soft);
-    cursor: pointer;
-  }
-  .note-inline-collapse:hover { background: var(--paper-sunken); }
-  .note-inline-tag-row { display: flex; align-items: center; gap: 8px; }
-  .note-inline-content {
-    min-height: 200px;
-    outline: none;
-    font-family: var(--serif); font-size: 16px; line-height: 1.6; color: var(--ink);
-    border: 1px solid var(--line); border-radius: 4px;
-    padding: 14px 16px;
-  }
-  .note-inline-content:focus { border-color: var(--ink); }
-  .note-inline-content h1 { font-family: var(--serif); font-size: 24px; font-weight: 500; margin: 14px 0 8px; }
-  .note-inline-content h2 { font-family: var(--serif); font-size: 19px; font-weight: 500; margin: 12px 0 6px; }
-  .note-inline-content p { margin: 8px 0; }
-  .note-inline-content ul, .note-inline-content ol { padding-left: 24px; margin: 8px 0; }
-  .note-inline-content li { margin: 3px 0; }
-  .note-inline-content a { color: var(--accent); text-decoration: underline; }
-  .note-inline-content img { max-width: 100%; border-radius: 3px; margin: 8px 0; display: block; }
-  .note-inline-content label.check-item { display: inline-flex; align-items: center; gap: 6px; }
-  .note-inline-content label.check-item input[type="checkbox"] { margin: 0; transform: translateY(1px); }
-  .note-inline-content:empty::before {
-    content: 'Start writing…';
-    color: var(--mute);
-    font-style: italic;
-  }
 
   /* ───── Auth gate (sign-in screen) ───── */
   .auth-gate {
@@ -2043,7 +2031,7 @@ function renderProjects() {
   add.className = 'project-add';
   add.textContent = '+ new project';
   add.addEventListener('click', () => {
-    const firstNote = { id: uid(), title: '', html: '', tag: '', x: 40, y: 40, updatedAt: Date.now() };
+    const firstNote = { id: uid(), title: '', html: '', tag: '', updatedAt: Date.now() };
     const newProj = { id: uid(), name: '', notes: [firstNote] };
     data.projects.push(newProj);
     save();
@@ -2057,45 +2045,42 @@ function renderProjects() {
 let currentProjectId = null;
 function openProject(id) {
   currentProjectId = id;
-  currentNoteId = null;
   const proj = data.projects.find(p => p.id === id);
   if (!proj) return;
   // Defensive: ensure folder has at least one note (handles legacy data)
   if (!proj.notes || proj.notes.length === 0) {
-    proj.notes = [{ id: uid(), title: '', html: '', tag: '', x: 40, y: 40, updatedAt: Date.now() }];
+    proj.notes = [{ id: uid(), title: '', html: '', tag: '', updatedAt: Date.now() }];
     save();
   }
   document.getElementById('project-title-input').value = proj.name;
   document.getElementById('project-view').classList.add('open');
   renderCanvas();
-  // Scroll canvas to where the notes are (top-left)
+  // Scroll back to top so newest cards are in view
   setTimeout(() => {
     const s = document.getElementById('canvas-scroll');
-    if (s) { s.scrollLeft = 0; s.scrollTop = 0; }
+    if (s) s.scrollTop = 0;
   }, 30);
 }
 function closeProject() {
   currentProjectId = null;
-  currentNoteId = null;
   document.getElementById('project-view').classList.remove('open');
   renderProjects();
 }
 
-// "+ Note" header button — drops a card in the visible viewport
+// "+ Note" header button — drops a fresh card at the top of the canvas
 document.getElementById('project-add-note').addEventListener('click', () => {
   const proj = data.projects.find(p => p.id === currentProjectId);
   if (!proj) return;
-  const s = document.getElementById('canvas-scroll');
-  const x = (s.scrollLeft || 0) + 40;
-  const y = (s.scrollTop  || 0) + 40;
-  const newNote = { id: uid(), title: '', html: '', tag: '', color: '', x, y, updatedAt: Date.now() };
+  const newNote = { id: uid(), title: '', html: '', tag: '', color: '', updatedAt: Date.now() };
   proj.notes.push(newNote);
   save();
-  currentNoteId = newNote.id;
   renderCanvas();
   renderProjects();
+  // Scroll to top so the new card is in view, then focus its title
   setTimeout(() => {
-    const inp = document.querySelector(`.note-card[data-id="${newNote.id}"] .note-inline-title`);
+    const s = document.getElementById('canvas-scroll');
+    if (s) s.scrollTop = 0;
+    const inp = document.querySelector(`.note-card[data-id="${newNote.id}"] .note-card-title`);
     if (inp) inp.focus();
   }, 30);
 });
@@ -2117,306 +2102,208 @@ const NOTE_COLORS = [
   { name: 'pink',       value: '#FFE3EF' },
 ];
 
-const CARD_DEFAULT_WIDTH = 280;
-
-function ensureCardPositions(proj) {
-  let changed = false;
-  let i = 0;
-  proj.notes.forEach(n => {
-    if (typeof n.x !== 'number' || typeof n.y !== 'number') {
-      const col = i % 3;
-      const row = Math.floor(i / 3);
-      n.x = 40 + col * 310;
-      n.y = 40 + row * 230;
-      changed = true;
-    }
-    i++;
-  });
-  if (changed) save();
-}
-
 function renderCanvas() {
   const canvas = document.getElementById('notes-canvas');
   canvas.innerHTML = '';
   const proj = data.projects.find(p => p.id === currentProjectId);
   if (!proj) return;
-  ensureCardPositions(proj);
 
-  proj.notes.forEach(n => {
+  // Newest update first, leftmost (i.e. earliest in DOM order for CSS columns)
+  const sorted = [...proj.notes].sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+
+  sorted.forEach(n => {
     const card = document.createElement('div');
     card.className = 'note-card';
     card.dataset.id = n.id;
-    card.style.left = (n.x || 0) + 'px';
-    card.style.top  = (n.y || 0) + 'px';
     if (n.color) card.style.background = n.color;
-    if (n.id === currentNoteId) card.classList.add('expanded');
-    renderCardContents(card, n, proj);
-    attachCardDrag(card, n, proj);
+    renderCard(card, n, proj);
     canvas.appendChild(card);
   });
 }
 
-// alias kept for any leftover callers
+// alias for any leftover callers
 function renderNotesGrid() { renderCanvas(); }
 
-function attachCardDrag(card, n, proj) {
-  let downX, downY, origX, origY, isDragging, scrollEl;
+function renderCard(card, n, proj) {
+  const swatches = NOTE_COLORS.map(c => {
+    const active = (c.value === (n.color || '')) ? ' active' : '';
+    const noColorCls = !c.value ? ' no-color' : '';
+    const bg = c.value || 'var(--paper)';
+    return `<button class="color-swatch${active}${noColorCls}" data-color="${c.value}" style="background:${bg};" title="${c.name || 'no color'}"></button>`;
+  }).join('');
 
-  card.addEventListener('pointerdown', e => {
-    // Don't initiate drag if the card is expanded (user is editing)
-    if (n.id === currentNoteId) return;
-    // Don't drag from buttons or other interactive children
-    if (e.target.closest('button, input, textarea, [contenteditable]')) return;
-    if (e.button !== undefined && e.button !== 0) return;   // left click only
+  const tagChipHTML = n.tag
+    ? `<div><span class="note-tag-chip tag-${n.tag}">#${n.tag}</span></div>`
+    : '';
 
-    downX = e.clientX;
-    downY = e.clientY;
-    origX = n.x || 0;
-    origY = n.y || 0;
-    isDragging = false;
-    scrollEl = document.getElementById('canvas-scroll');
+  card.innerHTML = `
+    <div class="note-card-head">
+      <input type="text" class="note-card-title" placeholder="Untitled" />
+      <button class="note-card-delete" title="Delete note">×</button>
+    </div>
+    <div class="note-card-content" contenteditable="true"></div>
+    ${tagChipHTML}
+    <div class="note-card-controls">
+      <div class="note-controls-row">
+        <span class="tag-label">Tag</span>
+        <button class="tag-btn t-today" data-tag="today">#Today</button>
+        <button class="tag-btn t-tomorrow" data-tag="tomorrow">#Tomorrow</button>
+        <button class="tag-btn t-someday" data-tag="someday">#Someday</button>
+        <button class="tag-btn" data-tag="">Clear</button>
+      </div>
+      <div class="note-controls-row">
+        <span class="tag-label">Color</span>
+        ${swatches}
+      </div>
+      <div class="note-controls-row" style="border-top:1px solid var(--line); padding-top:8px; margin-top:2px;">
+        <button class="toolbar-btn bold" data-cmd="bold" title="Bold (Cmd+B)">B</button>
+        <button class="toolbar-btn italic" data-cmd="italic" title="Italic (Cmd+I)">I</button>
+        <button class="toolbar-btn strike" data-cmd="strikeThrough" title="Strikethrough">S</button>
+        <div class="toolbar-sep"></div>
+        <button class="toolbar-btn" data-cmd="h1" title="Heading 1">H1</button>
+        <button class="toolbar-btn" data-cmd="h2" title="Heading 2">H2</button>
+        <button class="toolbar-btn" data-cmd="paragraph" title="Paragraph">¶</button>
+        <div class="toolbar-sep"></div>
+        <button class="toolbar-btn" data-cmd="ul" title="Bullet list">• List</button>
+        <button class="toolbar-btn" data-cmd="ol" title="Numbered list">1. List</button>
+        <button class="toolbar-btn" data-cmd="check" title="Checklist item">☐</button>
+        <div class="toolbar-sep"></div>
+        <button class="toolbar-btn" data-cmd="link" title="Insert link">Link</button>
+        <button class="toolbar-btn" data-cmd="image" title="Insert image">Image</button>
+      </div>
+    </div>
+  `;
 
-    function onMove(ev) {
-      const dx = ev.clientX - downX;
-      const dy = ev.clientY - downY;
-      if (!isDragging && (Math.abs(dx) > 4 || Math.abs(dy) > 4)) {
-        isDragging = true;
-        card.classList.add('dragging');
-        card.setPointerCapture && card.setPointerCapture(ev.pointerId);
-      }
-      if (isDragging) {
-        n.x = Math.max(0, origX + dx);
-        n.y = Math.max(0, origY + dy);
-        card.style.left = n.x + 'px';
-        card.style.top  = n.y + 'px';
+  const titleInput = card.querySelector('.note-card-title');
+  const contentEl  = card.querySelector('.note-card-content');
+  titleInput.value = n.title || '';
+  contentEl.innerHTML = n.html || '';
+  updateTagButtons(card, n);
+
+  // Title edits
+  titleInput.addEventListener('input', e => {
+    n.title = e.target.value; n.updatedAt = Date.now(); save();
+  });
+
+  // Content edits
+  contentEl.addEventListener('input', () => {
+    n.html = contentEl.innerHTML; n.updatedAt = Date.now(); save();
+  });
+
+  // Checkbox persistence
+  contentEl.addEventListener('click', e => {
+    if (e.target.matches('input[type="checkbox"]')) {
+      setTimeout(() => {
+        if (e.target.checked) e.target.setAttribute('checked', 'checked');
+        else e.target.removeAttribute('checked');
+        n.html = contentEl.innerHTML; save();
+      }, 0);
+    }
+  });
+
+  // Image paste
+  contentEl.addEventListener('paste', e => {
+    const items = (e.clipboardData || {}).items;
+    if (!items) return;
+    for (const item of items) {
+      if (item.type && item.type.startsWith('image/')) {
+        e.preventDefault();
+        const file = item.getAsFile();
+        const reader = new FileReader();
+        reader.onload = ev => {
+          document.execCommand('insertHTML', false, `<img src="${ev.target.result}" alt="">`);
+        };
+        reader.readAsDataURL(file);
+        return;
       }
     }
-    function onUp(ev) {
-      window.removeEventListener('pointermove', onMove);
-      window.removeEventListener('pointerup', onUp);
-      if (isDragging) {
-        card.classList.remove('dragging');
-        n.updatedAt = Date.now();
-        save();
-      } else {
-        // It was a click → expand this card
-        currentNoteId = n.id;
-        renderCanvas();
+  });
+
+  // Toolbar
+  card.querySelectorAll('.note-card-controls .toolbar-btn').forEach(btn => {
+    btn.addEventListener('mousedown', e => e.preventDefault());   // don't steal focus
+    btn.addEventListener('click', () => {
+      const cmd = btn.dataset.cmd;
+      contentEl.focus();
+      switch (cmd) {
+        case 'bold': document.execCommand('bold'); break;
+        case 'italic': document.execCommand('italic'); break;
+        case 'strikeThrough': document.execCommand('strikeThrough'); break;
+        case 'h1': document.execCommand('formatBlock', false, 'H1'); break;
+        case 'h2': document.execCommand('formatBlock', false, 'H2'); break;
+        case 'paragraph': document.execCommand('formatBlock', false, 'P'); break;
+        case 'ul': document.execCommand('insertUnorderedList'); break;
+        case 'ol': document.execCommand('insertOrderedList'); break;
+        case 'check':
+          document.execCommand('insertHTML', false,
+            '<label class="check-item"><input type="checkbox"><span>&nbsp;item</span></label><div><br></div>');
+          break;
+        case 'link': {
+          const url = prompt('Link URL:');
+          if (url) document.execCommand('createLink', false, url);
+          break;
+        }
+        case 'image': {
+          const url = prompt('Image URL (or paste an image directly into the note):');
+          if (url) document.execCommand('insertHTML', false, `<img src="${url}" alt="">`);
+          break;
+        }
       }
+      n.html = contentEl.innerHTML; save();
+    });
+  });
+
+  // Tag buttons
+  card.querySelectorAll('.note-controls-row .tag-btn').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      n.tag = btn.dataset.tag || '';
+      n.updatedAt = Date.now();
+      save();
+      // Rerender just this card so the tag chip appears/disappears
+      renderCard(card, n, proj);
+    });
+  });
+
+  // Color swatches
+  card.querySelectorAll('.color-swatch').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      n.color = btn.dataset.color || '';
+      n.updatedAt = Date.now();
+      save();
+      if (n.color) card.style.background = n.color;
+      else card.style.background = '';
+      card.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
+      btn.classList.add('active');
+    });
+  });
+
+  // Delete
+  card.querySelector('.note-card-delete').addEventListener('click', e => {
+    e.stopPropagation();
+    if (!confirm('Delete this note?')) return;
+    proj.notes = proj.notes.filter(x => x.id !== n.id);
+    // Folder must contain at least one note
+    if (proj.notes.length === 0) {
+      proj.notes.push({ id: uid(), title: '', html: '', tag: '', updatedAt: Date.now() });
     }
-    window.addEventListener('pointermove', onMove);
-    window.addEventListener('pointerup', onUp);
+    save(true);
+    renderCanvas();
+    renderProjects();
   });
 }
 
-/* Renders the inside of one note card — either preview or expanded inline editor */
-function renderCardContents(card, n, proj) {
-  if (n.id === currentNoteId) {
-    // EXPANDED — inline editor
-    const swatches = NOTE_COLORS.map(c => {
-      const active = (c.value === (n.color || '')) ? ' active' : '';
-      const noColorCls = !c.value ? ' no-color' : '';
-      const bg = c.value || 'var(--paper)';
-      return `<button class="color-swatch${active}${noColorCls}" data-color="${c.value}" style="background:${bg};" title="${c.name || 'no color'}"></button>`;
-    }).join('');
-
-    card.innerHTML = `
-      <div class="note-inline-editor">
-        <div class="note-inline-header">
-          <input type="text" class="note-inline-title" placeholder="Untitled note">
-          <button class="note-inline-collapse">Done</button>
-        </div>
-        <div class="note-inline-tag-row">
-          <span class="tag-label">Tag</span>
-          <button class="tag-btn t-today" data-tag="today">#Today</button>
-          <button class="tag-btn t-tomorrow" data-tag="tomorrow">#Tomorrow</button>
-          <button class="tag-btn t-someday" data-tag="someday">#Someday</button>
-          <button class="tag-btn" data-tag="">Clear</button>
-          <span style="flex:1"></span>
-          <button class="note-inline-collapse" data-action="delete" style="color:#b3261e;">Delete</button>
-        </div>
-        <div class="note-color-row">
-          <span class="tag-label">Color</span>
-          ${swatches}
-        </div>
-        <div class="note-inline-toolbar">
-          <button class="toolbar-btn bold" data-cmd="bold" title="Bold (Cmd+B)">B</button>
-          <button class="toolbar-btn italic" data-cmd="italic" title="Italic (Cmd+I)">I</button>
-          <button class="toolbar-btn strike" data-cmd="strikeThrough" title="Strikethrough">S</button>
-          <div class="toolbar-sep"></div>
-          <button class="toolbar-btn" data-cmd="h1" title="Heading 1">H1</button>
-          <button class="toolbar-btn" data-cmd="h2" title="Heading 2">H2</button>
-          <button class="toolbar-btn" data-cmd="paragraph" title="Paragraph">¶</button>
-          <div class="toolbar-sep"></div>
-          <button class="toolbar-btn" data-cmd="ul" title="Bullet list">• List</button>
-          <button class="toolbar-btn" data-cmd="ol" title="Numbered list">1. List</button>
-          <button class="toolbar-btn" data-cmd="check" title="Checklist item">☐</button>
-          <div class="toolbar-sep"></div>
-          <button class="toolbar-btn" data-cmd="link" title="Insert link">Link</button>
-          <button class="toolbar-btn" data-cmd="image" title="Insert image">Image</button>
-        </div>
-        <div class="note-inline-content" contenteditable="true"></div>
-      </div>
-    `;
-    const titleInput = card.querySelector('.note-inline-title');
-    const contentEl  = card.querySelector('.note-inline-content');
-    titleInput.value = n.title || '';
-    contentEl.innerHTML = n.html || '';
-    updateTagButtons(card, n);
-
-    // Title input
-    titleInput.addEventListener('input', e => {
-      n.title = e.target.value; n.updatedAt = Date.now(); save();
-    });
-
-    // Content edits
-    contentEl.addEventListener('input', () => {
-      n.html = contentEl.innerHTML; n.updatedAt = Date.now(); save();
-    });
-
-    // Checkbox persistence
-    contentEl.addEventListener('click', e => {
-      if (e.target.matches('input[type="checkbox"]')) {
-        setTimeout(() => {
-          if (e.target.checked) e.target.setAttribute('checked', 'checked');
-          else e.target.removeAttribute('checked');
-          n.html = contentEl.innerHTML; save();
-        }, 0);
-      }
-    });
-
-    // Image paste
-    contentEl.addEventListener('paste', e => {
-      const items = (e.clipboardData || {}).items;
-      if (!items) return;
-      for (const item of items) {
-        if (item.type && item.type.startsWith('image/')) {
-          e.preventDefault();
-          const file = item.getAsFile();
-          const reader = new FileReader();
-          reader.onload = ev => {
-            document.execCommand('insertHTML', false, `<img src="${ev.target.result}" alt="">`);
-          };
-          reader.readAsDataURL(file);
-          return;
-        }
-      }
-    });
-
-    // Toolbar
-    card.querySelectorAll('.note-inline-toolbar .toolbar-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const cmd = btn.dataset.cmd;
-        contentEl.focus();
-        switch (cmd) {
-          case 'bold': document.execCommand('bold'); break;
-          case 'italic': document.execCommand('italic'); break;
-          case 'strikeThrough': document.execCommand('strikeThrough'); break;
-          case 'h1': document.execCommand('formatBlock', false, 'H1'); break;
-          case 'h2': document.execCommand('formatBlock', false, 'H2'); break;
-          case 'paragraph': document.execCommand('formatBlock', false, 'P'); break;
-          case 'ul': document.execCommand('insertUnorderedList'); break;
-          case 'ol': document.execCommand('insertOrderedList'); break;
-          case 'check':
-            document.execCommand('insertHTML', false,
-              '<label class="check-item"><input type="checkbox"><span>&nbsp;item</span></label><div><br></div>');
-            break;
-          case 'link': {
-            const url = prompt('Link URL:');
-            if (url) document.execCommand('createLink', false, url);
-            break;
-          }
-          case 'image': {
-            const url = prompt('Image URL (or paste an image directly into the note):');
-            if (url) document.execCommand('insertHTML', false, `<img src="${url}" alt="">`);
-            break;
-          }
-        }
-        n.html = contentEl.innerHTML; save();
-      });
-    });
-
-    // Tag buttons
-    card.querySelectorAll('.note-inline-tag-row .tag-btn').forEach(btn => {
-      btn.addEventListener('click', e => {
-        e.stopPropagation();
-        n.tag = btn.dataset.tag || '';
-        save();
-        updateTagButtons(card, n);
-      });
-    });
-
-    // Color swatches
-    card.querySelectorAll('.color-swatch').forEach(btn => {
-      btn.addEventListener('click', e => {
-        e.stopPropagation();
-        n.color = btn.dataset.color || '';
-        save();
-        if (n.color) card.style.background = n.color;
-        else card.style.background = '';
-        card.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
-        btn.classList.add('active');
-      });
-    });
-
-    // Done (collapse) and Delete buttons
-    card.querySelectorAll('.note-inline-collapse').forEach(btn => {
-      btn.addEventListener('click', e => {
-        e.stopPropagation();
-        if (btn.dataset.action === 'delete') {
-          if (!confirm('Delete this note?')) return;
-          proj.notes = proj.notes.filter(x => x.id !== n.id);
-          // Folder must contain at least one note
-          if (proj.notes.length === 0) {
-            proj.notes.push({ id: uid(), title: '', html: '', tag: '', x: 40, y: 40, updatedAt: Date.now() });
-          }
-          currentNoteId = null;
-          save(true);
-          renderCanvas();
-          renderProjects();
-        } else {
-          currentNoteId = null;
-          renderCanvas();
-          renderProjects();
-        }
-      });
-    });
-
-  } else {
-    // COLLAPSED — preview card
-    let preview = (n.html || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
-    const tagHTML = n.tag ? `<span class="note-card-tag tag-${n.tag}">#${n.tag}</span>` : '';
-    card.innerHTML = `
-      <button class="note-card-delete" title="Delete note">×</button>
-      <div class="note-card-body">
-        <div class="note-card-title">${(n.title || 'Untitled').replace(/</g,'&lt;')}</div>
-        <div class="note-card-preview">${preview.replace(/</g,'&lt;') || '<em style="color:var(--mute)">empty</em>'}</div>
-        ${tagHTML}
-      </div>
-    `;
-    card.querySelector('.note-card-delete').addEventListener('click', e => {
-      e.stopPropagation();
-      if (!confirm('Delete this note?')) return;
-      proj.notes = proj.notes.filter(x => x.id !== n.id);
-      if (proj.notes.length === 0) {
-        proj.notes.push({ id: uid(), title: '', html: '', tag: '', x: 40, y: 40, updatedAt: Date.now() });
-      }
-      save(true);
-      renderCanvas();
-      renderProjects();
-    });
-    // Click-to-expand is handled by attachCardDrag (it distinguishes click from drag)
-  }
-}
-
 function updateTagButtons(card, n) {
-  card.querySelectorAll('.note-inline-tag-row .tag-btn').forEach(b => {
+  card.querySelectorAll('.note-controls-row .tag-btn').forEach(b => {
     b.classList.toggle('active', b.dataset.tag === (n.tag || ''));
   });
 }
 
-/* ════════════════ NOTE EDITOR (inline — state only) ════════════════ */
+// (legacy alias retained — does nothing now since cards are always editable)
+function renderCardContents() {}
 let currentNoteId = null;
+
 
 /* ════════════════ MODAL CONTROLS ════════════════ */
 function openModal(id) { document.getElementById(id).classList.add('open'); }
