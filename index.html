@@ -1,0 +1,2130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Haystack — Adam Record</title>
+<style>
+  /* Primary font: Iowan Old Style (built-in macOS system font) */
+  /* Falls back to Charter, then Georgia. To add via Adobe Fonts later, */
+  /* drop a typekit <link> above and prepend the font name to --serif. */
+  :root {
+    --bg: #FAF6EE;
+    --paper: #FFFCF5;
+    --paper-sunken: #F2ECDB;
+    --ink: #111111;
+    --soft: #3D3D3A;
+    --mute: #8A857B;
+    --line: #E5DDC9;
+    --line-strong: #CFC6AE;
+
+    /* Haystack brand palette */
+    --hs-pink:   #FF76B8;
+    --hs-yellow: #FFCA33;
+    --hs-green:  #34B36B;
+    --hs-blue:   #4D68FF;
+    --hs-orange: #FF8A4C;
+    --hs-sky:    #D6ECFF;
+    --hs-mint:   #D9F7E6;
+    --hs-cream:  #FFF7EB;
+
+    --accent: var(--hs-pink);
+    --accent-soft: #FFE3EF;
+    --tag-today-bg: var(--hs-cream);
+    --tag-today-ink: #8A5A1C;
+    --tag-tomorrow-bg: var(--hs-sky);
+    --tag-tomorrow-ink: #1F3A6B;
+    --tag-someday-bg: #F0E6F5;
+    --tag-someday-ink: #4A2E5A;
+    --serif: "Iowan Old Style", "Iowan Old Style BT", "Charter", "Charter BT", Georgia, serif;
+    --sans: "Iowan Old Style", "Iowan Old Style BT", "Charter", "Charter BT", Georgia, serif;
+    --shadow: 0 1px 2px rgba(10,10,10,0.04);
+  }
+
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--serif);
+    font-size: 15px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  input, textarea, button, select {
+    font-family: inherit;
+    color: inherit;
+  }
+  button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    font-size: inherit;
+    color: inherit;
+  }
+  a { color: var(--ink); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  /* ───────────────────────────── HEADER ───────────────────────────── */
+  .header {
+    padding: 48px 32px 28px;
+    max-width: 1600px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: end;
+    gap: 24px;
+  }
+  .header-left {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 16px;
+    color: var(--soft);
+  }
+  .header-center { text-align: center; }
+  .brand-logo {
+    display: inline-block;
+    height: 78px;
+    width: auto;
+    max-width: 100%;
+    margin: 0 auto;
+  }
+  .masthead-sub {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 16px;
+    color: var(--mute);
+    margin-top: 6px;
+  }
+  .header-right {
+    text-align: right;
+    font-family: var(--serif);
+    color: var(--soft);
+  }
+  .weather-temp {
+    font-family: var(--serif);
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1;
+  }
+  .weather-desc {
+    font-style: italic;
+    font-family: var(--serif);
+    color: var(--mute);
+    font-size: 15px;
+    margin-top: 4px;
+  }
+  .divider-line {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 0 32px;
+  }
+  .divider-line::after {
+    content: "";
+    display: block;
+    border-top: 1px solid var(--line);
+  }
+
+  /* ───────────────────────────── DASHBOARD GRID ─────────────────── */
+  .dashboard {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 16px;
+    padding: 24px 32px 48px;
+    max-width: 1600px;
+    margin: 0 auto;
+  }
+  .widget {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 22px 24px;
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+  .widget-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 18px;
+  }
+  .widget-title {
+    font-family: var(--serif);
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: -0.005em;
+    color: var(--ink);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .widget-title .icon-slot {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    flex-shrink: 0;
+  }
+  .widget-title .icon-slot:empty { display: none; }
+  .widget-title .icon-slot img,
+  .widget-title .icon-slot svg {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+  .widget-actions { display: flex; gap: 10px; align-items: baseline; }
+  .icon-btn {
+    color: var(--mute);
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 14px;
+    padding: 2px 4px;
+    transition: color 0.15s ease;
+  }
+  .icon-btn:hover { color: var(--ink); }
+  .icon-btn.primary { color: var(--accent); }
+
+  /* Grid spans — backgrounds use Haystack soft palette */
+  .w-calendar     { grid-column: span 6; min-height: 480px; }
+  .w-affirmations { grid-column: span 3; background: #FFF7EB; border: none; } /* Cream */
+  .w-inspo        { grid-column: span 3; }
+  .w-wilt         { grid-column: span 4; background: #D6ECFF; border: none; } /* Sky */
+  .w-goals        { grid-column: span 4; background: #FFF1CC; border: none; } /* soft yellow */
+  .w-people       { grid-column: span 2; background: #FFE3EF; border: none; } /* soft pink */
+  .w-resources    { grid-column: span 2; background: #D9F7E6; border: none; } /* Mint */
+  .w-projects     { grid-column: span 12; }
+
+  @media (max-width: 1200px) {
+    .w-calendar { grid-column: span 12; }
+    .w-affirmations, .w-inspo { grid-column: span 6; }
+    .w-wilt, .w-goals { grid-column: span 6; }
+    .w-people, .w-resources { grid-column: span 6; }
+  }
+  @media (max-width: 700px) {
+    .header { grid-template-columns: 1fr; text-align: center; }
+    .header-left, .header-right { text-align: center; }
+    .dashboard > .widget { grid-column: span 12 !important; }
+    .brand-logo { height: 56px; }
+  }
+
+  /* ───────────────────────────── CALENDAR ───────────────────────── */
+  .calendar-modes {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 14px;
+  }
+  .mode-btn {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 15px;
+    color: var(--mute);
+    padding: 4px 12px;
+    border: 1px solid transparent;
+    border-radius: 99px;
+    transition: all 0.15s ease;
+  }
+  .mode-btn:hover { color: var(--ink); }
+  .mode-btn.active {
+    color: var(--ink);
+    border-color: var(--ink);
+    font-style: normal;
+    font-weight: 700;
+  }
+  .calendar-frame {
+    flex: 1;
+    border: 1px solid var(--line);
+    background: var(--paper-sunken);
+    min-height: 380px;
+    position: relative;
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .calendar-frame iframe { width: 100%; height: 100%; border: 0; min-height: 380px; }
+  .calendar-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    text-align: center;
+    padding: 32px;
+    color: var(--mute);
+    gap: 14px;
+  }
+  .calendar-empty .empty-title {
+    font-family: var(--serif);
+    font-size: 26px;
+    font-style: italic;
+    color: var(--soft);
+  }
+  .calendar-empty p { max-width: 340px; font-size: 14px; line-height: 1.6; }
+
+  /* ───────────────────────────── AFFIRMATIONS ───────────────────── */
+  .sticky-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex: 1;
+  }
+  .sticky {
+    background: #FFFBF0;
+    border: 1px solid #EBE0C2;
+    padding: 14px 16px;
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 17px;
+    line-height: 1.5;
+    color: #3D2A18;
+    position: relative;
+    cursor: text;
+    transition: transform 0.15s ease;
+    min-height: 54px;
+    transform: rotate(-0.4deg);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+  }
+  .sticky:nth-child(even) { transform: rotate(0.5deg); background: #FFF6E0; }
+  .sticky:nth-child(3n)   { transform: rotate(-0.7deg); background: #FFFBF0; }
+  .sticky[contenteditable]:focus {
+    outline: 1px dashed var(--accent);
+    transform: rotate(0deg);
+  }
+  .sticky-delete {
+    position: absolute;
+    top: 4px;
+    right: 6px;
+    font-size: 14px;
+    color: rgba(0,0,0,0.25);
+    line-height: 1;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+  }
+  .sticky:hover .sticky-delete { opacity: 1; }
+  .sticky-delete:hover { color: rgba(0,0,0,0.7); }
+  .empty-hint {
+    color: var(--mute);
+    font-style: italic;
+    font-family: var(--serif);
+    font-size: 15px;
+    text-align: center;
+    padding: 24px 12px;
+  }
+
+  /* ───────────────────────────── INSPO IMAGE ────────────────────── */
+  .inspo-frame {
+    flex: 1;
+    background: var(--paper-sunken);
+    border: 1px solid var(--line);
+    min-height: 200px;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .inspo-frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .inspo-caption {
+    margin-top: 8px;
+    font-family: var(--serif);
+    font-style: italic;
+    color: var(--mute);
+    font-size: 12px;
+    text-align: center;
+  }
+
+  /* ───────────────────────────── WILT ───────────────────────────── */
+  .wilt-today {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 14px;
+  }
+  .wilt-label {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 14px;
+    color: var(--soft);
+    margin-bottom: 8px;
+  }
+  .wilt-input {
+    width: 100%;
+    min-height: 70px;
+    resize: vertical;
+    border: 1px solid rgba(0,0,0,0.12);
+    border-radius: 3px;
+    padding: 12px 14px;
+    font-family: var(--serif);
+    font-size: 17px;
+    font-style: italic;
+    line-height: 1.5;
+    color: var(--ink);
+    background: rgba(255,252,245,0.7);
+    outline: none;
+    transition: all 0.15s ease;
+  }
+  .wilt-input:focus { border-color: var(--ink); background: var(--paper); }
+  .wilt-history {
+    flex: 1;
+    overflow-y: auto;
+    max-height: 220px;
+    border-top: 1px solid rgba(0,0,0,0.1);
+    padding-top: 12px;
+  }
+  .wilt-entry {
+    padding: 9px 0;
+    border-bottom: 1px dashed rgba(0,0,0,0.12);
+    font-size: 14px;
+    line-height: 1.55;
+  }
+  .wilt-entry:last-child { border-bottom: 0; }
+  .wilt-date {
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--mute);
+    margin-bottom: 3px;
+    font-family: var(--serif);
+  }
+  .wilt-text { font-family: var(--serif); color: var(--soft); white-space: pre-wrap; font-size: 15px; }
+
+  /* ───────────────────────────── GOALS ──────────────────────────── */
+  .goal-tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 14px;
+    border-bottom: 1px solid rgba(0,0,0,0.12);
+  }
+  .goal-tab {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 15px;
+    color: var(--mute);
+    padding: 6px 12px;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: all 0.15s ease;
+  }
+  .goal-tab.active {
+    color: var(--ink);
+    border-bottom-color: var(--ink);
+    font-style: normal;
+    font-weight: 700;
+  }
+  .goal-tab:hover { color: var(--soft); }
+  .goal-list {
+    flex: 1;
+    overflow-y: auto;
+    max-height: 260px;
+  }
+  .goal-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 7px 0;
+    border-bottom: 1px dashed transparent;
+  }
+  .goal-item:hover { border-bottom-color: rgba(0,0,0,0.12); }
+  .goal-item input[type="checkbox"] {
+    margin-top: 4px;
+    accent-color: var(--accent);
+    cursor: pointer;
+    width: 14px;
+    height: 14px;
+  }
+  .goal-text {
+    flex: 1;
+    font-family: var(--serif);
+    font-size: 16px;
+    color: var(--ink);
+    background: none;
+    border: none;
+    outline: none;
+    padding: 0;
+  }
+  .goal-item.done .goal-text { color: var(--mute); text-decoration: line-through; }
+  .goal-delete {
+    color: var(--mute);
+    font-size: 14px;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+  }
+  .goal-item:hover .goal-delete { opacity: 0.6; }
+  .goal-delete:hover { opacity: 1; color: var(--ink); }
+  .goal-add {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(0,0,0,0.12);
+  }
+  .goal-add input {
+    flex: 1;
+    border: 1px solid rgba(0,0,0,0.12);
+    border-radius: 3px;
+    padding: 7px 12px;
+    font-size: 14px;
+    font-family: var(--serif);
+    background: rgba(255,252,245,0.6);
+    outline: none;
+  }
+  .goal-add input:focus { border-color: var(--ink); background: var(--paper); }
+  .goal-add button {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 15px;
+    color: var(--accent);
+    padding: 0 10px;
+  }
+
+  /* ───────────────────────────── PEOPLE ─────────────────────────── */
+  .people-list {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    max-height: 260px;
+  }
+  .person-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 7px 0;
+    border-bottom: 1px dashed rgba(0,0,0,0.12);
+    cursor: pointer;
+    font-family: var(--serif);
+    font-size: 16px;
+    transition: color 0.15s ease;
+  }
+  .person-row:last-child { border-bottom: 0; }
+  .person-row:hover { color: var(--accent); }
+  .person-row .arrow {
+    color: var(--mute);
+    font-size: 16px;
+  }
+  .person-add-btn {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(0,0,0,0.12);
+    font-family: var(--serif);
+    font-style: italic;
+    color: var(--accent);
+    text-align: center;
+    font-size: 15px;
+  }
+
+  /* ───────────────────────────── RESOURCES ──────────────────────── */
+  .resources-list {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    max-height: 260px;
+  }
+  .resource-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 7px 0;
+    border-bottom: 1px dashed rgba(0,0,0,0.12);
+    gap: 8px;
+  }
+  .resource-row:last-child { border-bottom: 0; }
+  .resource-row a {
+    font-family: var(--serif);
+    font-size: 15px;
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .resource-row a:hover { color: var(--accent); text-decoration: underline; }
+  .resource-delete {
+    color: var(--mute);
+    font-size: 12px;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+  }
+  .resource-row:hover .resource-delete { opacity: 0.6; }
+  .resource-delete:hover { opacity: 1; color: var(--ink); }
+  .resource-add-btn {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(0,0,0,0.12);
+    font-family: var(--serif);
+    font-style: italic;
+    color: var(--accent);
+    text-align: center;
+    font-size: 15px;
+  }
+
+  /* ───────────────────────────── PROJECTS ───────────────────────── */
+  .projects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 14px;
+  }
+  .project-card {
+    background: var(--paper-sunken);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 22px;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    position: relative;
+    min-height: 120px;
+  }
+  .project-card:hover {
+    border-color: var(--ink);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(10,10,10,0.08);
+  }
+  .project-card-title {
+    font-family: var(--serif);
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 8px;
+    line-height: 1.15;
+    text-decoration: underline;
+    text-decoration-thickness: 1.5px;
+    text-underline-offset: 4px;
+  }
+  .project-card-meta {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 14px;
+    color: var(--mute);
+  }
+  .project-card-delete {
+    position: absolute;
+    top: 8px;
+    right: 10px;
+    color: var(--mute);
+    font-size: 14px;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+  }
+  .project-card:hover .project-card-delete { opacity: 0.5; }
+  .project-card-delete:hover { opacity: 1; color: var(--ink); }
+  .project-add {
+    background: transparent;
+    border: 1px dashed var(--line-strong);
+    border-radius: 4px;
+    padding: 22px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--mute);
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 20px;
+    min-height: 120px;
+    transition: all 0.18s ease;
+  }
+  .project-add:hover {
+    border-color: var(--ink);
+    color: var(--ink);
+    background: rgba(0,0,0,0.02);
+  }
+
+  /* ───────────────────────────── FULLSCREEN VIEW ────────────────── */
+  .fullscreen {
+    position: fixed;
+    inset: 0;
+    background: var(--bg);
+    z-index: 100;
+    display: none;
+    flex-direction: column;
+    overflow-y: auto;
+  }
+  .fullscreen.open { display: flex; }
+  .fs-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 24px 32px;
+    border-bottom: 1px solid var(--line);
+    background: var(--bg);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .fs-title {
+    font-family: var(--serif);
+    font-size: 36px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+    line-height: 1;
+    flex: 1;
+    background: none;
+    border: none;
+    outline: none;
+    padding: 0;
+    margin-right: 16px;
+  }
+  .fs-close {
+    font-size: 22px;
+    color: var(--mute);
+    padding: 4px 10px;
+    transition: color 0.15s ease;
+  }
+  .fs-close:hover { color: var(--ink); }
+  .fs-body {
+    padding: 32px;
+    max-width: 1400px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  /* Notes board (within a project) */
+  .notes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 18px;
+  }
+  .note-card {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 2px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    position: relative;
+    min-height: 160px;
+    display: flex;
+    flex-direction: column;
+  }
+  .note-card:hover {
+    border-color: var(--line-strong);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(27,27,27,0.06);
+  }
+  .note-cover {
+    width: 100%;
+    height: 120px;
+    background: var(--paper-sunken);
+    background-size: cover;
+    background-position: center;
+  }
+  .note-card-body { padding: 14px 16px; flex: 1; }
+  .note-card-title {
+    font-family: var(--serif);
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1.2;
+    color: var(--ink);
+    margin-bottom: 8px;
+  }
+  .note-card-preview {
+    font-family: var(--serif);
+    font-size: 13px;
+    color: var(--mute);
+    line-height: 1.5;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+  }
+  .note-card-tag {
+    display: inline-block;
+    margin-top: 10px;
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 12px;
+    padding: 2px 10px;
+    border-radius: 99px;
+  }
+  .tag-today    { background: var(--tag-today-bg);    color: var(--tag-today-ink); }
+  .tag-tomorrow { background: var(--tag-tomorrow-bg); color: var(--tag-tomorrow-ink); }
+  .tag-someday  { background: var(--tag-someday-bg);  color: var(--tag-someday-ink); }
+  .note-card-delete {
+    position: absolute;
+    top: 6px;
+    right: 8px;
+    background: rgba(255,255,255,0.92);
+    color: var(--soft);
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+    z-index: 2;
+  }
+  .note-card:hover .note-card-delete { opacity: 1; }
+  .note-card-delete:hover { background: var(--ink); color: var(--paper); }
+  .note-add {
+    background: transparent;
+    border: 1px dashed var(--line-strong);
+    border-radius: 2px;
+    min-height: 160px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 18px;
+    color: var(--mute);
+    transition: all 0.18s ease;
+  }
+  .note-add:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  /* Note editor */
+  .note-editor {
+    max-width: 800px;
+    margin: 0 auto;
+    width: 100%;
+  }
+  .note-cover-area {
+    width: 100%;
+    height: 180px;
+    background: var(--paper-sunken);
+    background-size: cover;
+    background-position: center;
+    border: 1px solid var(--line);
+    margin-bottom: 24px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .note-cover-actions {
+    display: flex;
+    gap: 8px;
+    background: rgba(255,255,255,0.9);
+    padding: 6px 10px;
+    border-radius: 2px;
+    border: 1px solid var(--line);
+  }
+  .note-cover-actions button {
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--soft);
+  }
+  .note-cover-actions button:hover { color: var(--ink); }
+  .note-title-input {
+    width: 100%;
+    border: none;
+    background: none;
+    font-family: var(--serif);
+    font-size: 46px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+    padding: 0;
+    outline: none;
+    margin-bottom: 14px;
+    line-height: 1.05;
+  }
+  .note-tag-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    align-items: center;
+  }
+  .tag-label {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 14px;
+    color: var(--mute);
+    margin-right: 8px;
+  }
+  .tag-btn {
+    font-family: var(--serif);
+    font-size: 13px;
+    padding: 4px 12px;
+    border: 1px solid var(--line);
+    border-radius: 99px;
+    color: var(--soft);
+    transition: all 0.15s ease;
+  }
+  .tag-btn:hover { border-color: var(--ink); }
+  .tag-btn.active.t-today    { background: var(--tag-today-bg);    border-color: var(--tag-today-ink);    color: var(--tag-today-ink); }
+  .tag-btn.active.t-tomorrow { background: var(--tag-tomorrow-bg); border-color: var(--tag-tomorrow-ink); color: var(--tag-tomorrow-ink); }
+  .tag-btn.active.t-someday  { background: var(--tag-someday-bg);  border-color: var(--tag-someday-ink);  color: var(--tag-someday-ink); }
+
+  .editor-toolbar {
+    display: flex;
+    gap: 2px;
+    padding: 8px;
+    border: 1px solid var(--line);
+    border-bottom: none;
+    background: var(--paper-sunken);
+    flex-wrap: wrap;
+    border-radius: 3px 3px 0 0;
+  }
+  .toolbar-btn {
+    padding: 5px 10px;
+    color: var(--soft);
+    font-family: var(--serif);
+    font-size: 14px;
+    border-radius: 2px;
+    transition: background 0.15s ease;
+    min-width: 30px;
+    text-align: center;
+  }
+  .toolbar-btn:hover { background: var(--paper); color: var(--ink); }
+  .toolbar-btn.bold { font-weight: 700; }
+  .toolbar-btn.italic { font-style: italic; }
+  .toolbar-btn.strike { text-decoration: line-through; }
+  .toolbar-sep {
+    width: 1px;
+    background: var(--line);
+    margin: 2px 4px;
+  }
+  .note-content {
+    border: 1px solid var(--line);
+    background: var(--paper);
+    padding: 24px 28px;
+    min-height: 380px;
+    outline: none;
+    font-family: var(--serif);
+    font-size: 16px;
+    line-height: 1.7;
+    color: var(--ink);
+    border-radius: 0 0 3px 3px;
+  }
+  .note-content:focus { border-color: var(--ink); }
+  .note-content h1 {
+    font-family: var(--serif);
+    font-size: 32px;
+    font-weight: 700;
+    margin: 20px 0 10px;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+  }
+  .note-content h2 {
+    font-family: var(--serif);
+    font-size: 24px;
+    font-weight: 700;
+    margin: 18px 0 8px;
+    line-height: 1.2;
+  }
+  .note-content p { margin: 10px 0; }
+  .note-content ul, .note-content ol { padding-left: 24px; margin: 10px 0; }
+  .note-content li { margin: 4px 0; }
+  .note-content a { color: var(--accent); text-decoration: underline; }
+  .note-content img { max-width: 100%; border-radius: 3px; margin: 10px 0; display: block; }
+  .note-content label.check-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin: 4px 0;
+    cursor: pointer;
+  }
+  .note-content label.check-item input[type="checkbox"] {
+    margin-top: 5px;
+    accent-color: var(--accent);
+    cursor: pointer;
+  }
+  .note-content :empty:focus::before {
+    content: "";
+  }
+
+  /* ───────────────────────────── MODAL ─────────────────────────── */
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(27,27,27,0.4);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 200;
+    padding: 24px;
+  }
+  .modal-backdrop.open { display: flex; }
+  .modal {
+    background: var(--paper);
+    border-radius: 6px;
+    max-width: 500px;
+    width: 100%;
+    max-height: 86vh;
+    overflow-y: auto;
+    padding: 32px;
+    box-shadow: 0 12px 40px rgba(10,10,10,0.25);
+  }
+  .modal h2 {
+    font-family: var(--serif);
+    font-weight: 700;
+    font-size: 30px;
+    letter-spacing: -0.01em;
+    margin: 0 0 16px;
+    text-decoration: underline;
+    text-decoration-thickness: 1.5px;
+    text-underline-offset: 5px;
+  }
+  .modal label {
+    display: block;
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 14px;
+    color: var(--mute);
+    margin-bottom: 5px;
+    margin-top: 14px;
+  }
+  .modal input[type="text"], .modal input[type="url"], .modal textarea {
+    width: 100%;
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    padding: 9px 12px;
+    font-size: 15px;
+    background: var(--paper-sunken);
+    outline: none;
+    font-family: var(--serif);
+  }
+  .modal textarea { min-height: 80px; resize: vertical; font-family: var(--serif); font-style: italic; font-size: 15px; }
+  .modal input:focus, .modal textarea:focus { border-color: var(--ink); background: var(--paper); }
+  .modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 26px;
+  }
+  .modal-btn {
+    padding: 8px 20px;
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 15px;
+    border-radius: 3px;
+    border: 1px solid var(--line);
+    background: var(--paper);
+    color: var(--soft);
+    transition: all 0.15s ease;
+  }
+  .modal-btn:hover { border-color: var(--ink); color: var(--ink); }
+  .modal-btn.primary {
+    background: var(--ink);
+    color: var(--paper);
+    border-color: var(--ink);
+    font-style: normal;
+    font-weight: 700;
+  }
+  .modal-btn.primary:hover { background: var(--soft); }
+
+  /* People list inside modal */
+  .people-modal-list {
+    margin-top: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-height: 50vh;
+    overflow-y: auto;
+  }
+  .person-entry {
+    border: 1px solid var(--line);
+    border-radius: 2px;
+    padding: 12px 14px;
+    background: var(--paper-sunken);
+  }
+  .person-entry input.person-name {
+    width: 100%;
+    border: none;
+    background: none;
+    outline: none;
+    font-family: var(--serif);
+    font-size: 18px;
+    color: var(--ink);
+    padding: 0 0 6px;
+  }
+  .person-entry textarea.person-note {
+    width: 100%;
+    border: none;
+    background: none;
+    outline: none;
+    font-size: 13px;
+    color: var(--soft);
+    resize: vertical;
+    min-height: 32px;
+    font-family: inherit;
+    line-height: 1.5;
+    padding: 0;
+  }
+  .person-entry-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 6px;
+  }
+  .person-entry-delete {
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--mute);
+  }
+  .person-entry-delete:hover { color: var(--ink); }
+
+  /* Settings modal */
+  .settings-section { margin-bottom: 18px; padding-bottom: 18px; border-bottom: 1px solid var(--line); }
+  .settings-section:last-child { border-bottom: 0; }
+  .url-list { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
+  .url-row { display: flex; gap: 8px; align-items: center; }
+  .url-row input { flex: 1; }
+  .url-row button { padding: 4px 10px; color: var(--mute); font-size: 13px; }
+  .url-row button:hover { color: var(--ink); }
+
+  /* Utility */
+  .saved-flash {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: var(--ink);
+    color: var(--paper);
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 14px;
+    padding: 8px 18px;
+    border-radius: 4px;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.25s ease;
+    pointer-events: none;
+    z-index: 300;
+  }
+  .saved-flash.show { opacity: 1; transform: translateY(0); }
+
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--line-strong); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--mute); }
+</style>
+</head>
+<body>
+
+<!-- ─────────────────────────── HEADER ─────────────────────────── -->
+<header class="header">
+  <div class="header-left" id="date-display">—</div>
+  <div class="header-center">
+    <img class="brand-logo" src="icons/logo.png" alt="Haystack">
+    <div class="masthead-sub">~ a place to think with yourself ~</div>
+  </div>
+  <div class="header-right">
+    <div><span class="weather-temp" id="weather-temp">—</span></div>
+    <div class="weather-desc" id="weather-desc">loading…</div>
+  </div>
+</header>
+<div class="divider-line"></div>
+
+<!-- ─────────────────────────── DASHBOARD GRID ─────────────────── -->
+<main class="dashboard">
+
+  <!-- CALENDAR -->
+  <section class="widget w-calendar">
+    <div class="widget-header">
+      <div class="widget-title"><span class="icon-slot" data-icon="calendar"><!-- calendar icon --></span>Calendar</div>
+      <div class="widget-actions">
+        <button class="icon-btn" id="calendar-settings-btn">Settings</button>
+      </div>
+    </div>
+    <div class="calendar-modes" id="calendar-modes">
+      <button class="mode-btn active" data-mode="MONTH">Month</button>
+      <button class="mode-btn" data-mode="WEEK">Week</button>
+      <button class="mode-btn" data-mode="AGENDA">Schedule</button>
+    </div>
+    <div class="calendar-frame" id="calendar-frame"></div>
+  </section>
+
+  <!-- AFFIRMATIONS -->
+  <section class="widget w-affirmations">
+    <div class="widget-header">
+      <div class="widget-title"><span class="icon-slot" data-icon="affirmations"><!-- daily affirmations icon --></span>Affirmations</div>
+      <div class="widget-actions">
+        <button class="icon-btn primary" id="affirm-add">+ Add</button>
+      </div>
+    </div>
+    <div class="sticky-stack" id="sticky-stack"></div>
+  </section>
+
+  <!-- INSPO IMAGE -->
+  <section class="widget w-inspo">
+    <div class="widget-header">
+      <div class="widget-title"><span class="icon-slot" data-icon="inspo"><!-- idea/lightbulb icon --></span>Inspo</div>
+      <div class="widget-actions">
+        <button class="icon-btn" id="inspo-settings-btn">Manage</button>
+      </div>
+    </div>
+    <div class="inspo-frame" id="inspo-frame"></div>
+    <div class="inspo-caption" id="inspo-caption"></div>
+  </section>
+
+  <!-- WILT -->
+  <section class="widget w-wilt">
+    <div class="widget-header">
+      <div class="widget-title"><span class="icon-slot" data-icon="wilt"><img src="icons/wilt.webp" alt=""></span>WILT</div>
+      <div class="widget-actions"><span class="icon-btn" style="cursor:default; font-style:italic;">what I learned today</span></div>
+    </div>
+    <div class="wilt-today">
+      <div class="wilt-label" id="wilt-today-label">Today</div>
+      <textarea class="wilt-input" id="wilt-input" placeholder="One thing you learned today…"></textarea>
+    </div>
+    <div class="wilt-history" id="wilt-history"></div>
+  </section>
+
+  <!-- GOALS -->
+  <section class="widget w-goals">
+    <div class="widget-header">
+      <div class="widget-title"><span class="icon-slot" data-icon="goals"><img src="icons/goals.webp" alt=""></span>Goals</div>
+    </div>
+    <div class="goal-tabs" id="goal-tabs">
+      <button class="goal-tab active" data-scope="day">Day</button>
+      <button class="goal-tab" data-scope="week">Week</button>
+      <button class="goal-tab" data-scope="month">Month</button>
+      <button class="goal-tab" data-scope="bucket">Bucket</button>
+    </div>
+    <div class="goal-list" id="goal-list"></div>
+    <div class="goal-add">
+      <input type="text" id="goal-input" placeholder="Add a goal…">
+      <button id="goal-add-btn">add</button>
+    </div>
+  </section>
+
+  <!-- PEOPLE -->
+  <section class="widget w-people">
+    <div class="widget-header">
+      <div class="widget-title"><span class="icon-slot" data-icon="people"><img src="icons/people.webp" alt=""></span>People</div>
+    </div>
+    <div class="people-list" id="people-list"></div>
+    <button class="person-add-btn" id="people-open-btn">manage</button>
+  </section>
+
+  <!-- RESOURCES -->
+  <section class="widget w-resources">
+    <div class="widget-header">
+      <div class="widget-title"><span class="icon-slot" data-icon="resources"><img src="icons/resources.webp" alt=""></span>Resources</div>
+    </div>
+    <div class="resources-list" id="resources-list"></div>
+    <button class="resource-add-btn" id="resource-add-btn">+ add link</button>
+  </section>
+
+  <!-- PROJECTS -->
+  <section class="widget w-projects">
+    <div class="widget-header">
+      <div class="widget-title"><span class="icon-slot" data-icon="projects"><img src="icons/projects.webp" alt=""></span>Projects</div>
+    </div>
+    <div class="projects-grid" id="projects-grid"></div>
+  </section>
+
+</main>
+
+<!-- ─────────────────────────── PROJECT FULLSCREEN ─────────────── -->
+<div class="fullscreen" id="project-view">
+  <div class="fs-header">
+    <input type="text" class="fs-title" id="project-title-input" placeholder="Untitled project">
+    <button class="fs-close" id="project-close">×</button>
+  </div>
+  <div class="fs-body">
+    <div class="notes-grid" id="notes-grid"></div>
+  </div>
+</div>
+
+<!-- ─────────────────────────── NOTE EDITOR FULLSCREEN ─────────── -->
+<div class="fullscreen" id="note-view">
+  <div class="fs-header">
+    <div style="display:flex; align-items:center; gap:16px; flex:1;">
+      <button class="fs-close" id="note-back" style="font-size:18px;">← Back</button>
+      <span class="masthead-sub" style="font-style:italic; color:var(--mute);" id="note-breadcrumb"></span>
+    </div>
+    <button class="fs-close" id="note-close">×</button>
+  </div>
+  <div class="fs-body note-editor">
+    <div class="note-cover-area" id="note-cover-area">
+      <div class="note-cover-actions">
+        <button id="note-cover-url">+ Cover URL</button>
+        <button id="note-cover-upload">Upload</button>
+        <button id="note-cover-clear" style="display:none;">Clear</button>
+      </div>
+    </div>
+
+    <input type="text" class="note-title-input" id="note-title-input" placeholder="Untitled note">
+
+    <div class="note-tag-row">
+      <span class="tag-label">Tag</span>
+      <button class="tag-btn t-today" data-tag="today">#Today</button>
+      <button class="tag-btn t-tomorrow" data-tag="tomorrow">#Tomorrow</button>
+      <button class="tag-btn t-someday" data-tag="someday">#Someday</button>
+      <button class="tag-btn" data-tag="">Clear</button>
+    </div>
+
+    <div class="editor-toolbar">
+      <button class="toolbar-btn bold" data-cmd="bold" title="Bold (Cmd+B)">B</button>
+      <button class="toolbar-btn italic" data-cmd="italic" title="Italic (Cmd+I)">I</button>
+      <button class="toolbar-btn strike" data-cmd="strikeThrough" title="Strikethrough">S</button>
+      <div class="toolbar-sep"></div>
+      <button class="toolbar-btn" data-cmd="h1" title="Heading 1">H1</button>
+      <button class="toolbar-btn" data-cmd="h2" title="Heading 2">H2</button>
+      <button class="toolbar-btn" data-cmd="paragraph" title="Paragraph">¶</button>
+      <div class="toolbar-sep"></div>
+      <button class="toolbar-btn" data-cmd="ul" title="Bullet list">• List</button>
+      <button class="toolbar-btn" data-cmd="ol" title="Numbered list">1. List</button>
+      <button class="toolbar-btn" data-cmd="check" title="Checklist item">☐</button>
+      <div class="toolbar-sep"></div>
+      <button class="toolbar-btn" data-cmd="link" title="Insert link">Link</button>
+      <button class="toolbar-btn" data-cmd="image" title="Insert image">Image</button>
+    </div>
+    <div class="note-content" id="note-content" contenteditable="true"></div>
+  </div>
+</div>
+
+<!-- ─────────────────────────── MODALS ─────────────────────────── -->
+<div class="modal-backdrop" id="people-modal">
+  <div class="modal">
+    <h2>People</h2>
+    <p style="color:var(--mute); font-size:13px; margin:0;">Folks worth giving attention to.</p>
+    <div class="people-modal-list" id="people-modal-list"></div>
+    <button class="modal-btn" id="person-add-btn" style="margin-top:14px;">+ Add person</button>
+    <div class="modal-actions">
+      <button class="modal-btn primary" data-close="people-modal">Done</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="resource-modal">
+  <div class="modal">
+    <h2>Add resource</h2>
+    <label>Title</label>
+    <input type="text" id="resource-title-input" placeholder="e.g. Are.na, Pinterest, Bandcamp…">
+    <label>URL</label>
+    <input type="url" id="resource-url-input" placeholder="https://…">
+    <div class="modal-actions">
+      <button class="modal-btn" data-close="resource-modal">Cancel</button>
+      <button class="modal-btn primary" id="resource-save-btn">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="calendar-modal">
+  <div class="modal">
+    <h2>Calendar settings</h2>
+    <p style="color:var(--mute); font-size:13px; margin:0 0 12px;">
+      In Google Calendar → Settings → [your calendar] → Integrate Calendar → copy the <em>Public URL to this calendar</em> or the <code>src</code> from the embed code.
+    </p>
+    <label>Embed source URL</label>
+    <input type="url" id="calendar-src-input" placeholder="https://calendar.google.com/calendar/embed?src=…">
+    <div class="modal-actions">
+      <button class="modal-btn" data-close="calendar-modal">Cancel</button>
+      <button class="modal-btn primary" id="calendar-save-btn">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="inspo-modal">
+  <div class="modal">
+    <h2>Inspo images</h2>
+    <p style="color:var(--mute); font-size:13px; margin:0;">Paste image URLs. One rotates in each hour.</p>
+    <div class="url-list" id="inspo-url-list"></div>
+    <div style="display:flex; gap:8px; margin-top:10px;">
+      <input type="url" id="inspo-new-url" placeholder="https://…" style="flex:1;">
+      <button class="modal-btn" id="inspo-add-url">+ Add</button>
+    </div>
+    <div style="margin-top:14px;">
+      <label style="margin-top:0;">Or upload</label>
+      <input type="file" id="inspo-upload" accept="image/*" multiple>
+      <p style="color:var(--mute); font-size:11px; margin-top:6px;">Uploads are stored in browser. Keep them small.</p>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-btn primary" data-close="inspo-modal">Done</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="prompt-modal">
+  <div class="modal">
+    <h2 id="prompt-title">Input</h2>
+    <input type="text" id="prompt-input">
+    <div class="modal-actions">
+      <button class="modal-btn" data-close="prompt-modal">Cancel</button>
+      <button class="modal-btn primary" id="prompt-ok">OK</button>
+    </div>
+  </div>
+</div>
+
+<div class="saved-flash" id="saved-flash">Saved</div>
+
+<!-- ─────────────────────────── SCRIPT ─────────────────────────── -->
+<script>
+/* ════════════════ STORAGE & STATE ════════════════ */
+const STORAGE_KEY = 'adam-dashboard-v1';
+const DEFAULT_DATA = {
+  config: {
+    calendarSrc: '',
+    calendarMode: 'MONTH',
+  },
+  wilt: {},
+  affirmations: [],
+  inspoImages: [],
+  inspoIndex: 0,
+  inspoLastChange: 0,
+  people: [],
+  goals: { day: [], week: [], month: [], bucket: [] },
+  goalScope: 'day',
+  resources: [],
+  projects: [],
+};
+
+function clone(o) { return JSON.parse(JSON.stringify(o)); }
+function uid() { return Math.random().toString(36).slice(2, 10); }
+
+let data;
+try {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  data = raw ? Object.assign(clone(DEFAULT_DATA), JSON.parse(raw)) : clone(DEFAULT_DATA);
+  // Backfill nested defaults
+  data.config = Object.assign({}, DEFAULT_DATA.config, data.config || {});
+  data.goals = Object.assign({}, DEFAULT_DATA.goals, data.goals || {});
+} catch (e) {
+  data = clone(DEFAULT_DATA);
+}
+
+let saveTimer = null;
+function save(flash = false) {
+  if (saveTimer) clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      if (flash) flashSaved();
+    } catch (e) {
+      console.error('Save failed', e);
+      alert('Could not save — local storage may be full. Try removing some images.');
+    }
+  }, 200);
+}
+function flashSaved() {
+  const el = document.getElementById('saved-flash');
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 1200);
+}
+
+/* ════════════════ HEADER (date + weather) ════════════════ */
+function todayKey() {
+  const d = new Date();
+  return d.toISOString().slice(0, 10);
+}
+function renderDate() {
+  const d = new Date();
+  const opts = { weekday: 'long', month: 'long', day: 'numeric' };
+  document.getElementById('date-display').textContent = d.toLocaleDateString(undefined, opts);
+}
+
+const WMO = {
+  0: ['clear', '☀'], 1: ['mostly clear','🌤'], 2: ['partly cloudy','⛅'], 3: ['overcast','☁'],
+  45: ['fog','🌫'], 48: ['icy fog','🌫'],
+  51: ['light drizzle','🌦'], 53: ['drizzle','🌦'], 55: ['heavy drizzle','🌧'],
+  61: ['light rain','🌦'], 63: ['rain','🌧'], 65: ['heavy rain','🌧'],
+  71: ['light snow','🌨'], 73: ['snow','🌨'], 75: ['heavy snow','❄'],
+  77: ['snow grains','🌨'],
+  80: ['rain showers','🌦'], 81: ['rain showers','🌧'], 82: ['violent showers','⛈'],
+  85: ['snow showers','🌨'], 86: ['heavy snow showers','❄'],
+  95: ['thunderstorm','⛈'], 96: ['storm + hail','⛈'], 99: ['storm + hail','⛈'],
+};
+function descCode(code) { return WMO[code] || ['—','·']; }
+function fetchWeather(lat, lon) {
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code&temperature_unit=fahrenheit`;
+  return fetch(url).then(r => r.json());
+}
+function renderWeather() {
+  const set = (t, d) => {
+    document.getElementById('weather-temp').textContent = t;
+    document.getElementById('weather-desc').textContent = d;
+  };
+  set('—', 'loading…');
+  const fallback = { lat: 40.7608, lon: -111.8910 }; // Salt Lake City
+  const go = (lat, lon) => {
+    fetchWeather(lat, lon).then(r => {
+      const t = Math.round(r.current.temperature_2m);
+      const [desc, emoji] = descCode(r.current.weather_code);
+      set(`${t}°`, `${emoji} ${desc}`);
+    }).catch(() => set('—', 'offline'));
+  };
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      p => go(p.coords.latitude, p.coords.longitude),
+      () => go(fallback.lat, fallback.lon),
+      { timeout: 4000, maximumAge: 60 * 60 * 1000 }
+    );
+  } else {
+    go(fallback.lat, fallback.lon);
+  }
+}
+
+/* ════════════════ CALENDAR ════════════════ */
+function renderCalendar() {
+  const frame = document.getElementById('calendar-frame');
+  document.querySelectorAll('.mode-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.mode === data.config.calendarMode);
+  });
+  if (!data.config.calendarSrc) {
+    frame.innerHTML = `
+      <div class="calendar-empty">
+        <div class="empty-title">Connect your calendar</div>
+        <p>Click <em>Settings</em> above and paste the public/embed URL from Google Calendar → Settings → Integrate calendar.</p>
+      </div>`;
+    return;
+  }
+  const src = data.config.calendarSrc;
+  let finalSrc;
+  try {
+    const u = new URL(src);
+    u.searchParams.set('mode', data.config.calendarMode);
+    u.searchParams.set('showPrint', '0');
+    u.searchParams.set('showTabs', '0');
+    u.searchParams.set('showCalendars', '0');
+    u.searchParams.set('showTz', '0');
+    finalSrc = u.toString();
+  } catch (e) {
+    frame.innerHTML = `<div class="calendar-empty"><div class="empty-title">Invalid URL</div><p>That doesn't look like a valid Google Calendar embed URL. Click Settings to update it.</p></div>`;
+    return;
+  }
+  frame.innerHTML = `<iframe src="${finalSrc}" frameborder="0" scrolling="no"></iframe>`;
+}
+document.getElementById('calendar-modes').addEventListener('click', e => {
+  if (!e.target.classList.contains('mode-btn')) return;
+  data.config.calendarMode = e.target.dataset.mode;
+  save();
+  renderCalendar();
+});
+document.getElementById('calendar-settings-btn').addEventListener('click', () => {
+  document.getElementById('calendar-src-input').value = data.config.calendarSrc;
+  openModal('calendar-modal');
+});
+document.getElementById('calendar-save-btn').addEventListener('click', () => {
+  const val = document.getElementById('calendar-src-input').value.trim();
+  // Accept either full embed URL, src extracted, or whole iframe — try to clean
+  let src = val;
+  const iframeMatch = val.match(/src="([^"]+)"/);
+  if (iframeMatch) src = iframeMatch[1];
+  data.config.calendarSrc = src;
+  save(true);
+  closeModal('calendar-modal');
+  renderCalendar();
+});
+
+/* ════════════════ AFFIRMATIONS ════════════════ */
+function renderAffirmations() {
+  const stack = document.getElementById('sticky-stack');
+  stack.innerHTML = '';
+  if (data.affirmations.length === 0) {
+    stack.innerHTML = `<div class="empty-hint">add a note to remind yourself of the bigger picture</div>`;
+    return;
+  }
+  data.affirmations.forEach(a => {
+    const div = document.createElement('div');
+    div.className = 'sticky';
+    div.setAttribute('contenteditable', 'true');
+    div.textContent = a.text;
+    div.dataset.id = a.id;
+    div.addEventListener('input', () => {
+      a.text = div.textContent;
+      save();
+    });
+    const del = document.createElement('button');
+    del.className = 'sticky-delete';
+    del.textContent = '×';
+    del.contentEditable = 'false';
+    del.addEventListener('click', (e) => {
+      e.stopPropagation();
+      data.affirmations = data.affirmations.filter(x => x.id !== a.id);
+      save(true);
+      renderAffirmations();
+    });
+    div.appendChild(del);
+    stack.appendChild(div);
+  });
+}
+document.getElementById('affirm-add').addEventListener('click', () => {
+  data.affirmations.push({ id: uid(), text: '' });
+  save();
+  renderAffirmations();
+  // Focus the newly added sticky
+  const stickies = document.querySelectorAll('.sticky');
+  const last = stickies[stickies.length - 1];
+  if (last) last.focus();
+});
+
+/* ════════════════ INSPO IMAGE ════════════════ */
+function pickInspoIndex() {
+  if (data.inspoImages.length === 0) return -1;
+  const now = Date.now();
+  // Change every hour
+  if (!data.inspoLastChange || now - data.inspoLastChange > 60 * 60 * 1000) {
+    data.inspoIndex = (data.inspoIndex + 1) % data.inspoImages.length;
+    data.inspoLastChange = now;
+    save();
+  }
+  if (data.inspoIndex >= data.inspoImages.length) data.inspoIndex = 0;
+  return data.inspoIndex;
+}
+function renderInspo() {
+  const frame = document.getElementById('inspo-frame');
+  const cap = document.getElementById('inspo-caption');
+  const idx = pickInspoIndex();
+  if (idx < 0) {
+    frame.innerHTML = `<div class="empty-hint" style="padding:20px;">add some images that inspire you</div>`;
+    cap.textContent = '';
+    return;
+  }
+  const src = data.inspoImages[idx];
+  frame.innerHTML = `<img src="${src}" alt="inspo" onerror="this.parentElement.innerHTML='<div class=&quot;empty-hint&quot;>image failed to load</div>';">`;
+  cap.textContent = `${idx + 1} of ${data.inspoImages.length} · rotates hourly`;
+}
+function renderInspoModal() {
+  const list = document.getElementById('inspo-url-list');
+  list.innerHTML = '';
+  data.inspoImages.forEach((url, i) => {
+    const row = document.createElement('div');
+    row.className = 'url-row';
+    const preview = url.startsWith('data:') ? '(uploaded)' : url;
+    row.innerHTML = `<input type="url" value="${url.replace(/"/g, '&quot;')}" data-index="${i}">
+      <button data-remove="${i}">remove</button>`;
+    list.appendChild(row);
+  });
+  list.querySelectorAll('input').forEach(inp => {
+    inp.addEventListener('change', () => {
+      data.inspoImages[+inp.dataset.index] = inp.value.trim();
+      save();
+      renderInspo();
+    });
+  });
+  list.querySelectorAll('button[data-remove]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      data.inspoImages.splice(+btn.dataset.remove, 1);
+      save(true);
+      renderInspoModal();
+      renderInspo();
+    });
+  });
+}
+document.getElementById('inspo-settings-btn').addEventListener('click', () => {
+  renderInspoModal();
+  openModal('inspo-modal');
+});
+document.getElementById('inspo-add-url').addEventListener('click', () => {
+  const inp = document.getElementById('inspo-new-url');
+  const v = inp.value.trim();
+  if (!v) return;
+  data.inspoImages.push(v);
+  inp.value = '';
+  save(true);
+  renderInspoModal();
+  renderInspo();
+});
+document.getElementById('inspo-upload').addEventListener('change', e => {
+  const files = Array.from(e.target.files);
+  let pending = files.length;
+  files.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = ev => {
+      data.inspoImages.push(ev.target.result);
+      pending--;
+      if (pending === 0) {
+        save(true);
+        renderInspoModal();
+        renderInspo();
+        e.target.value = '';
+      }
+    };
+    reader.readAsDataURL(file);
+  });
+});
+// Rotate inspo image hourly (force re-pick)
+setInterval(() => {
+  if (data.inspoImages.length > 1) renderInspo();
+}, 60 * 1000); // check every minute
+
+/* ════════════════ WILT ════════════════ */
+function renderWILT() {
+  const today = todayKey();
+  const lbl = document.getElementById('wilt-today-label');
+  const d = new Date();
+  lbl.textContent = d.toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' });
+  const inp = document.getElementById('wilt-input');
+  inp.value = data.wilt[today] || '';
+  // History
+  const hist = document.getElementById('wilt-history');
+  const keys = Object.keys(data.wilt).filter(k => k !== today && data.wilt[k]).sort().reverse();
+  if (keys.length === 0) {
+    hist.innerHTML = `<div class="empty-hint" style="padding:12px 0;">past entries will live here</div>`;
+    return;
+  }
+  hist.innerHTML = keys.map(k => {
+    const dt = new Date(k + 'T00:00:00');
+    const label = dt.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+    const text = data.wilt[k].replace(/</g, '&lt;');
+    return `<div class="wilt-entry"><div class="wilt-date">${label}</div><div class="wilt-text">${text}</div></div>`;
+  }).join('');
+}
+document.getElementById('wilt-input').addEventListener('input', e => {
+  data.wilt[todayKey()] = e.target.value;
+  save();
+});
+document.getElementById('wilt-input').addEventListener('blur', () => {
+  renderWILT();
+});
+
+/* ════════════════ GOALS ════════════════ */
+function renderGoals() {
+  document.querySelectorAll('.goal-tab').forEach(t => {
+    t.classList.toggle('active', t.dataset.scope === data.goalScope);
+  });
+  const list = document.getElementById('goal-list');
+  const goals = data.goals[data.goalScope] || [];
+  if (goals.length === 0) {
+    list.innerHTML = `<div class="empty-hint">no ${data.goalScope === 'bucket' ? 'bucket list items' : data.goalScope + ' goals'} yet</div>`;
+    return;
+  }
+  list.innerHTML = '';
+  goals.forEach(g => {
+    const row = document.createElement('div');
+    row.className = 'goal-item' + (g.done ? ' done' : '');
+    row.innerHTML = `
+      <input type="checkbox" ${g.done ? 'checked' : ''}>
+      <input type="text" class="goal-text" value="${g.text.replace(/"/g, '&quot;')}">
+      <button class="goal-delete">×</button>
+    `;
+    const [cb, txt, del] = row.children;
+    cb.addEventListener('change', () => { g.done = cb.checked; save(); renderGoals(); });
+    txt.addEventListener('input', () => { g.text = txt.value; save(); });
+    del.addEventListener('click', () => {
+      data.goals[data.goalScope] = goals.filter(x => x.id !== g.id);
+      save(true);
+      renderGoals();
+    });
+    list.appendChild(row);
+  });
+}
+document.getElementById('goal-tabs').addEventListener('click', e => {
+  if (!e.target.classList.contains('goal-tab')) return;
+  data.goalScope = e.target.dataset.scope;
+  save();
+  renderGoals();
+});
+function addGoal() {
+  const inp = document.getElementById('goal-input');
+  const v = inp.value.trim();
+  if (!v) return;
+  data.goals[data.goalScope].push({ id: uid(), text: v, done: false });
+  inp.value = '';
+  save();
+  renderGoals();
+}
+document.getElementById('goal-add-btn').addEventListener('click', addGoal);
+document.getElementById('goal-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') addGoal();
+});
+
+/* ════════════════ PEOPLE ════════════════ */
+function renderPeople() {
+  const list = document.getElementById('people-list');
+  if (data.people.length === 0) {
+    list.innerHTML = `<div class="empty-hint" style="font-size:13px;">no one yet</div>`;
+    return;
+  }
+  list.innerHTML = '';
+  data.people.slice(0, 8).forEach(p => {
+    const row = document.createElement('div');
+    row.className = 'person-row';
+    row.innerHTML = `<span>${(p.name || 'Unnamed').replace(/</g, '&lt;')}</span><span class="arrow">›</span>`;
+    row.addEventListener('click', () => {
+      openPeopleModal();
+    });
+    list.appendChild(row);
+  });
+  if (data.people.length > 8) {
+    const more = document.createElement('div');
+    more.className = 'person-row';
+    more.style.color = 'var(--mute)';
+    more.style.fontStyle = 'italic';
+    more.innerHTML = `<span>+ ${data.people.length - 8} more</span><span class="arrow">›</span>`;
+    more.addEventListener('click', openPeopleModal);
+    list.appendChild(more);
+  }
+}
+function openPeopleModal() {
+  renderPeopleModal();
+  openModal('people-modal');
+}
+function renderPeopleModal() {
+  const list = document.getElementById('people-modal-list');
+  list.innerHTML = '';
+  if (data.people.length === 0) {
+    list.innerHTML = `<div class="empty-hint">add people you want to stay close with</div>`;
+    return;
+  }
+  data.people.forEach(p => {
+    const entry = document.createElement('div');
+    entry.className = 'person-entry';
+    entry.innerHTML = `
+      <input type="text" class="person-name" value="${(p.name || '').replace(/"/g,'&quot;')}" placeholder="Name">
+      <textarea class="person-note" placeholder="A note about them…">${(p.note || '').replace(/</g,'&lt;')}</textarea>
+      <div class="person-entry-actions"><button class="person-entry-delete">delete</button></div>
+    `;
+    const [name, note, actions] = entry.children;
+    name.addEventListener('input', () => { p.name = name.value; save(); renderPeople(); });
+    note.addEventListener('input', () => { p.note = note.value; save(); });
+    actions.querySelector('button').addEventListener('click', () => {
+      if (!confirm(`Remove ${p.name || 'this person'}?`)) return;
+      data.people = data.people.filter(x => x.id !== p.id);
+      save(true);
+      renderPeopleModal();
+      renderPeople();
+    });
+    list.appendChild(entry);
+  });
+}
+document.getElementById('people-open-btn').addEventListener('click', openPeopleModal);
+document.getElementById('person-add-btn').addEventListener('click', () => {
+  data.people.push({ id: uid(), name: '', note: '' });
+  save();
+  renderPeopleModal();
+  renderPeople();
+});
+
+/* ════════════════ RESOURCES ════════════════ */
+function renderResources() {
+  const list = document.getElementById('resources-list');
+  if (data.resources.length === 0) {
+    list.innerHTML = `<div class="empty-hint" style="font-size:13px;">no links yet</div>`;
+    return;
+  }
+  list.innerHTML = '';
+  data.resources.forEach(r => {
+    const row = document.createElement('div');
+    row.className = 'resource-row';
+    row.innerHTML = `
+      <a href="${r.url}" target="_blank" rel="noopener" title="${r.url}">${r.title || r.url}</a>
+      <button class="resource-delete">×</button>
+    `;
+    row.querySelector('button').addEventListener('click', () => {
+      data.resources = data.resources.filter(x => x.id !== r.id);
+      save(true);
+      renderResources();
+    });
+    list.appendChild(row);
+  });
+}
+document.getElementById('resource-add-btn').addEventListener('click', () => {
+  document.getElementById('resource-title-input').value = '';
+  document.getElementById('resource-url-input').value = '';
+  openModal('resource-modal');
+  setTimeout(() => document.getElementById('resource-title-input').focus(), 60);
+});
+document.getElementById('resource-save-btn').addEventListener('click', () => {
+  const title = document.getElementById('resource-title-input').value.trim();
+  let url = document.getElementById('resource-url-input').value.trim();
+  if (!url) return;
+  if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+  data.resources.push({ id: uid(), title, url });
+  save(true);
+  closeModal('resource-modal');
+  renderResources();
+});
+
+/* ════════════════ PROJECTS ════════════════ */
+function renderProjects() {
+  const grid = document.getElementById('projects-grid');
+  grid.innerHTML = '';
+  data.projects.forEach(p => {
+    const card = document.createElement('div');
+    card.className = 'project-card';
+    card.innerHTML = `
+      <button class="project-card-delete">×</button>
+      <div class="project-card-title">${(p.name || 'Untitled').replace(/</g,'&lt;')}</div>
+      <div class="project-card-meta">${p.notes.length} note${p.notes.length === 1 ? '' : 's'}</div>
+    `;
+    card.querySelector('.project-card-delete').addEventListener('click', e => {
+      e.stopPropagation();
+      if (!confirm(`Delete project "${p.name || 'Untitled'}"?`)) return;
+      data.projects = data.projects.filter(x => x.id !== p.id);
+      save(true);
+      renderProjects();
+    });
+    card.addEventListener('click', () => openProject(p.id));
+    grid.appendChild(card);
+  });
+  const add = document.createElement('div');
+  add.className = 'project-add';
+  add.textContent = '+ new project';
+  add.addEventListener('click', () => {
+    const newProj = { id: uid(), name: '', notes: [] };
+    data.projects.push(newProj);
+    save();
+    renderProjects();
+    openProject(newProj.id);
+    setTimeout(() => document.getElementById('project-title-input').focus(), 100);
+  });
+  grid.appendChild(add);
+}
+
+let currentProjectId = null;
+function openProject(id) {
+  currentProjectId = id;
+  const proj = data.projects.find(p => p.id === id);
+  if (!proj) return;
+  document.getElementById('project-title-input').value = proj.name;
+  document.getElementById('project-view').classList.add('open');
+  renderNotesGrid();
+}
+function closeProject() {
+  currentProjectId = null;
+  document.getElementById('project-view').classList.remove('open');
+  renderProjects();
+}
+document.getElementById('project-close').addEventListener('click', closeProject);
+document.getElementById('project-title-input').addEventListener('input', e => {
+  const proj = data.projects.find(p => p.id === currentProjectId);
+  if (proj) { proj.name = e.target.value; save(); }
+});
+
+function renderNotesGrid() {
+  const grid = document.getElementById('notes-grid');
+  grid.innerHTML = '';
+  const proj = data.projects.find(p => p.id === currentProjectId);
+  if (!proj) return;
+  proj.notes.forEach(n => {
+    const card = document.createElement('div');
+    card.className = 'note-card';
+    let preview = (n.html || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+    const tagHTML = n.tag ? `<span class="note-card-tag tag-${n.tag}">#${n.tag}</span>` : '';
+    card.innerHTML = `
+      <button class="note-card-delete">×</button>
+      ${n.cover ? `<div class="note-cover" style="background-image:url('${n.cover.replace(/'/g, "\\'")}')"></div>` : ''}
+      <div class="note-card-body">
+        <div class="note-card-title">${(n.title || 'Untitled').replace(/</g,'&lt;')}</div>
+        <div class="note-card-preview">${preview.replace(/</g,'&lt;') || '<em style="color:var(--mute)">empty</em>'}</div>
+        ${tagHTML}
+      </div>
+    `;
+    card.querySelector('.note-card-delete').addEventListener('click', e => {
+      e.stopPropagation();
+      if (!confirm('Delete this note?')) return;
+      proj.notes = proj.notes.filter(x => x.id !== n.id);
+      save(true);
+      renderNotesGrid();
+      renderProjects();
+    });
+    card.addEventListener('click', () => openNote(n.id));
+    grid.appendChild(card);
+  });
+  const add = document.createElement('div');
+  add.className = 'note-add';
+  add.textContent = '+ new note';
+  add.addEventListener('click', () => {
+    const newNote = { id: uid(), title: '', html: '', tag: '', cover: '', updatedAt: Date.now() };
+    proj.notes.push(newNote);
+    save();
+    renderNotesGrid();
+    renderProjects();
+    openNote(newNote.id);
+    setTimeout(() => document.getElementById('note-title-input').focus(), 100);
+  });
+  grid.appendChild(add);
+}
+
+/* ════════════════ NOTE EDITOR ════════════════ */
+let currentNoteId = null;
+function openNote(noteId) {
+  const proj = data.projects.find(p => p.id === currentProjectId);
+  const note = proj.notes.find(n => n.id === noteId);
+  if (!note) return;
+  currentNoteId = noteId;
+
+  document.getElementById('note-breadcrumb').textContent = proj.name || 'Untitled';
+  document.getElementById('note-title-input').value = note.title;
+  document.getElementById('note-content').innerHTML = note.html || '';
+  renderNoteCover(note);
+  renderNoteTag(note);
+  document.getElementById('note-view').classList.add('open');
+}
+function closeNote() {
+  currentNoteId = null;
+  document.getElementById('note-view').classList.remove('open');
+  renderNotesGrid();
+  renderProjects();
+}
+function renderNoteCover(note) {
+  const cover = document.getElementById('note-cover-area');
+  const clearBtn = document.getElementById('note-cover-clear');
+  if (note.cover) {
+    cover.style.backgroundImage = `url('${note.cover.replace(/'/g, "\\'")}')`;
+    clearBtn.style.display = '';
+  } else {
+    cover.style.backgroundImage = '';
+    clearBtn.style.display = 'none';
+  }
+}
+function renderNoteTag(note) {
+  document.querySelectorAll('.tag-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.tag === (note.tag || ''));
+  });
+}
+function currentNote() {
+  const proj = data.projects.find(p => p.id === currentProjectId);
+  return proj && proj.notes.find(n => n.id === currentNoteId);
+}
+document.getElementById('note-close').addEventListener('click', closeNote);
+document.getElementById('note-back').addEventListener('click', closeNote);
+document.getElementById('note-title-input').addEventListener('input', e => {
+  const n = currentNote();
+  if (n) { n.title = e.target.value; n.updatedAt = Date.now(); save(); }
+});
+document.getElementById('note-content').addEventListener('input', () => {
+  const n = currentNote();
+  if (n) { n.html = document.getElementById('note-content').innerHTML; n.updatedAt = Date.now(); save(); }
+});
+// Toggle checkbox checked attribute on click for persistence
+document.getElementById('note-content').addEventListener('click', e => {
+  if (e.target.matches('input[type="checkbox"]')) {
+    // Defer to let browser toggle the IDL state
+    setTimeout(() => {
+      if (e.target.checked) e.target.setAttribute('checked', 'checked');
+      else e.target.removeAttribute('checked');
+      const n = currentNote();
+      if (n) { n.html = document.getElementById('note-content').innerHTML; save(); }
+    }, 0);
+  }
+});
+// Paste image handler
+document.getElementById('note-content').addEventListener('paste', e => {
+  const items = (e.clipboardData || {}).items;
+  if (!items) return;
+  for (const item of items) {
+    if (item.type && item.type.startsWith('image/')) {
+      e.preventDefault();
+      const file = item.getAsFile();
+      const reader = new FileReader();
+      reader.onload = ev => {
+        document.execCommand('insertHTML', false, `<img src="${ev.target.result}" alt="">`);
+      };
+      reader.readAsDataURL(file);
+      return;
+    }
+  }
+});
+
+// Toolbar handlers
+document.querySelectorAll('.editor-toolbar .toolbar-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const cmd = btn.dataset.cmd;
+    const editor = document.getElementById('note-content');
+    editor.focus();
+    switch (cmd) {
+      case 'bold': document.execCommand('bold'); break;
+      case 'italic': document.execCommand('italic'); break;
+      case 'strikeThrough': document.execCommand('strikeThrough'); break;
+      case 'h1': document.execCommand('formatBlock', false, 'H1'); break;
+      case 'h2': document.execCommand('formatBlock', false, 'H2'); break;
+      case 'paragraph': document.execCommand('formatBlock', false, 'P'); break;
+      case 'ul': document.execCommand('insertUnorderedList'); break;
+      case 'ol': document.execCommand('insertOrderedList'); break;
+      case 'check':
+        document.execCommand('insertHTML', false,
+          '<label class="check-item"><input type="checkbox"><span>&nbsp;item</span></label><div><br></div>');
+        break;
+      case 'link': {
+        const url = prompt('Link URL:');
+        if (url) document.execCommand('createLink', false, url);
+        break;
+      }
+      case 'image': {
+        const url = prompt('Image URL (or paste an image directly into the note):');
+        if (url) document.execCommand('insertHTML', false, `<img src="${url}" alt="">`);
+        break;
+      }
+    }
+    const n = currentNote();
+    if (n) { n.html = document.getElementById('note-content').innerHTML; save(); }
+  });
+});
+// Tag buttons
+document.querySelectorAll('.note-tag-row .tag-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const n = currentNote();
+    if (!n) return;
+    n.tag = btn.dataset.tag || '';
+    save();
+    renderNoteTag(n);
+  });
+});
+// Cover buttons
+document.getElementById('note-cover-url').addEventListener('click', () => {
+  const url = prompt('Cover image URL:');
+  if (!url) return;
+  const n = currentNote();
+  if (n) { n.cover = url; save(); renderNoteCover(n); }
+});
+document.getElementById('note-cover-upload').addEventListener('click', () => {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/*';
+  input.addEventListener('change', () => {
+    const file = input.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const n = currentNote();
+      if (n) { n.cover = ev.target.result; save(); renderNoteCover(n); }
+    };
+    reader.readAsDataURL(file);
+  });
+  input.click();
+});
+document.getElementById('note-cover-clear').addEventListener('click', () => {
+  const n = currentNote();
+  if (n) { n.cover = ''; save(); renderNoteCover(n); }
+});
+
+/* ════════════════ MODAL CONTROLS ════════════════ */
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('[data-close]').forEach(b => {
+  b.addEventListener('click', () => closeModal(b.dataset.close));
+});
+document.querySelectorAll('.modal-backdrop').forEach(bd => {
+  bd.addEventListener('click', e => { if (e.target === bd) bd.classList.remove('open'); });
+});
+// ESC closes
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.modal-backdrop.open').forEach(b => b.classList.remove('open'));
+  }
+});
+
+/* ════════════════ INITIAL RENDER ════════════════ */
+renderDate();
+renderWeather();
+renderCalendar();
+renderAffirmations();
+renderInspo();
+renderWILT();
+renderGoals();
+renderPeople();
+renderResources();
+renderProjects();
+
+// Refresh date at midnight
+setInterval(() => {
+  renderDate();
+  renderWILT();
+}, 60 * 1000);
+</script>
+</body>
+</html>
