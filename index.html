@@ -191,16 +191,16 @@
     transition: color 0.15s ease;
   }
   .icon-btn:hover { color: var(--ink); }
-  .icon-btn.primary { color: var(--accent); }
+  .icon-btn.primary { color: var(--soft); }
 
   /* Grid spans — backgrounds use Haystack soft palette */
   .w-projects     { grid-column: span 12; }
-  .w-calendar     { grid-column: span 5; min-height: 0; }
+  .w-goals        { grid-column: span 5; background: #FFF1CC; border: none; } /* soft yellow */
+  .w-people       { grid-column: span 3; background: #FFE3EF; border: none; } /* soft pink */
+  .w-calendar     { grid-column: span 4; min-height: 0; }
   .w-affirmations { grid-column: span 3; background: #FFF7EB; border: none; } /* Cream */
-  .w-inspo        { grid-column: span 4; }
+  .w-inspo        { grid-column: span 3; }
   .w-wilt         { grid-column: span 4; background: #D6ECFF; border: none; } /* Sky */
-  .w-goals        { grid-column: span 4; background: #FFF1CC; border: none; } /* soft yellow */
-  .w-people       { grid-column: span 2; background: #FFE3EF; border: none; } /* soft pink */
   .w-resources    { grid-column: span 2; background: #D9F7E6; border: none; } /* Mint */
 
   @media (max-width: 1200px) {
@@ -488,7 +488,7 @@
     font-family: var(--serif);
     font-style: italic;
     font-size: 15px;
-    color: var(--accent);
+    color: var(--soft);
     padding: 0 10px;
   }
 
@@ -524,7 +524,7 @@
     border-top: 1px solid rgba(0,0,0,0.12);
     font-family: var(--serif);
     font-style: italic;
-    color: var(--accent);
+    color: var(--soft);
     text-align: center;
     font-size: 14px;
   }
@@ -570,7 +570,7 @@
     border-top: 1px solid rgba(0,0,0,0.12);
     font-family: var(--serif);
     font-style: italic;
-    color: var(--accent);
+    color: var(--soft);
     text-align: center;
     font-size: 14px;
   }
@@ -1131,7 +1131,7 @@
 <!-- ─────────────────────────── DASHBOARD GRID ─────────────────── -->
 <main class="dashboard">
 
-  <!-- PROJECTS -->
+  <!-- PROJECTS (row 1, full width) -->
   <section class="widget w-projects">
     <div class="widget-header">
       <div class="widget-title"><span class="icon-slot" data-icon="projects"><img src="projects.webp" alt=""></span>Projects</div>
@@ -1139,59 +1139,7 @@
     <div class="projects-grid" id="projects-grid"></div>
   </section>
 
-  <!-- CALENDAR -->
-  <section class="widget w-calendar">
-    <div class="widget-header">
-      <div class="widget-title"><span class="icon-slot" data-icon="calendar"><!-- calendar icon --></span>Calendar</div>
-      <div class="widget-actions">
-        <button class="icon-btn" id="calendar-settings-btn">Settings</button>
-      </div>
-    </div>
-    <div class="calendar-modes" id="calendar-modes">
-      <button class="mode-btn active" data-mode="MONTH">Month</button>
-      <button class="mode-btn" data-mode="WEEK">Week</button>
-      <button class="mode-btn" data-mode="AGENDA">Schedule</button>
-    </div>
-    <div class="calendar-frame" id="calendar-frame"></div>
-  </section>
-
-  <!-- AFFIRMATIONS -->
-  <section class="widget w-affirmations">
-    <div class="widget-header">
-      <div class="widget-title"><span class="icon-slot" data-icon="affirmations"><!-- daily affirmations icon --></span>Affirmations</div>
-      <div class="widget-actions">
-        <button class="icon-btn primary" id="affirm-add">+ Add</button>
-      </div>
-    </div>
-    <div class="sticky-stack" id="sticky-stack"></div>
-  </section>
-
-  <!-- INSPO IMAGE -->
-  <section class="widget w-inspo">
-    <div class="widget-header">
-      <div class="widget-title"><span class="icon-slot" data-icon="inspo"><!-- idea/lightbulb icon --></span>Inspo</div>
-      <div class="widget-actions">
-        <button class="icon-btn" id="inspo-settings-btn">Manage</button>
-      </div>
-    </div>
-    <div class="inspo-frame" id="inspo-frame"></div>
-    <div class="inspo-caption" id="inspo-caption"></div>
-  </section>
-
-  <!-- WILT -->
-  <section class="widget w-wilt">
-    <div class="widget-header">
-      <div class="widget-title"><span class="icon-slot" data-icon="wilt"><img src="wilt.webp" alt=""></span>WILT</div>
-      <div class="widget-actions"><span class="icon-btn" style="cursor:default; font-style:italic;">what I learned today</span></div>
-    </div>
-    <div class="wilt-today">
-      <div class="wilt-label" id="wilt-today-label">Today</div>
-      <textarea class="wilt-input" id="wilt-input" placeholder="One thing you learned today…"></textarea>
-    </div>
-    <div class="wilt-history" id="wilt-history"></div>
-  </section>
-
-  <!-- GOALS -->
+  <!-- GOALS (row 2) -->
   <section class="widget w-goals">
     <div class="widget-header">
       <div class="widget-title"><span class="icon-slot" data-icon="goals"><img src="goals.webp" alt=""></span>Goals</div>
@@ -1209,7 +1157,7 @@
     </div>
   </section>
 
-  <!-- PEOPLE -->
+  <!-- PEOPLE (row 2) -->
   <section class="widget w-people">
     <div class="widget-header">
       <div class="widget-title"><span class="icon-slot" data-icon="people"><img src="people.webp" alt=""></span>People</div>
@@ -1218,17 +1166,66 @@
     <button class="person-add-btn" id="people-open-btn">manage</button>
   </section>
 
-  <!-- RESOURCES -->
+  <!-- CALENDAR (row 2) -->
+  <section class="widget w-calendar">
+    <div class="widget-header">
+      <div class="widget-title"><span class="icon-slot" data-icon="calendar"><img src="calendar.svg" alt=""></span>Calendar</div>
+      <div class="widget-actions">
+        <button class="icon-btn" id="calendar-settings-btn">Settings</button>
+      </div>
+    </div>
+    <div class="calendar-modes" id="calendar-modes">
+      <button class="mode-btn active" data-mode="MONTH">Month</button>
+      <button class="mode-btn" data-mode="WEEK">Week</button>
+      <button class="mode-btn" data-mode="AGENDA">Schedule</button>
+    </div>
+    <div class="calendar-frame" id="calendar-frame"></div>
+  </section>
+
+  <!-- AFFIRMATIONS (row 3) -->
+  <section class="widget w-affirmations">
+    <div class="widget-header">
+      <div class="widget-title"><span class="icon-slot" data-icon="affirmations"><img src="affirmations.svg" alt=""></span>Affirmations</div>
+      <div class="widget-actions">
+        <button class="icon-btn primary" id="affirm-add">+ Add</button>
+      </div>
+    </div>
+    <div class="sticky-stack" id="sticky-stack"></div>
+  </section>
+
+  <!-- INSPO IMAGE (row 3) -->
+  <section class="widget w-inspo">
+    <div class="widget-header">
+      <div class="widget-title"><span class="icon-slot" data-icon="inspo"><!-- idea/lightbulb icon --></span>Inspo</div>
+      <div class="widget-actions">
+        <button class="icon-btn" id="inspo-settings-btn">Manage</button>
+      </div>
+    </div>
+    <div class="inspo-frame" id="inspo-frame"></div>
+    <div class="inspo-caption" id="inspo-caption"></div>
+  </section>
+
+  <!-- WILT (row 3) -->
+  <section class="widget w-wilt">
+    <div class="widget-header">
+      <div class="widget-title"><span class="icon-slot" data-icon="wilt"><img src="wilt.svg" alt=""></span>WILT</div>
+      <div class="widget-actions"><span class="icon-btn" style="cursor:default; font-style:italic;">what I learned today</span></div>
+    </div>
+    <div class="wilt-today">
+      <div class="wilt-label" id="wilt-today-label">Today</div>
+      <textarea class="wilt-input" id="wilt-input" placeholder="One thing you learned today…"></textarea>
+    </div>
+    <div class="wilt-history" id="wilt-history"></div>
+  </section>
+
+  <!-- RESOURCES (row 3) -->
   <section class="widget w-resources">
     <div class="widget-header">
-      <div class="widget-title"><span class="icon-slot" data-icon="resources"><img src="resources.webp" alt=""></span>Resources</div>
+      <div class="widget-title"><span class="icon-slot" data-icon="resources"><img src="resources.svg" alt=""></span>Resources</div>
     </div>
     <div class="resources-list" id="resources-list"></div>
     <button class="resource-add-btn" id="resource-add-btn">+ add link</button>
   </section>
-
-  <!-- PROJECTS -->
-  <!-- PROJECTS moved to top -->
 
 </main>
 
