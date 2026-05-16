@@ -371,59 +371,183 @@
   }
 
   /* ───────────────────────────── WILT ───────────────────────────── */
-  .wilt-today {
+  /* Shared "Add" button used by WILT + Affirmations input rows */
+  .add-btn {
+    background: var(--ink);
+    color: var(--paper);
+    border: none;
+    padding: 0 14px;
+    border-radius: 4px;
+    font-family: var(--sans);
+    font-size: 11pt;
+    font-weight: 500;
+    cursor: pointer;
+    height: 34px;
+    transition: background 0.15s ease;
+    flex-shrink: 0;
+  }
+  .add-btn:hover { background: var(--soft); }
+  .add-btn:disabled { background: var(--line-strong); cursor: not-allowed; opacity: 0.7; }
+
+  .wilt-input-row, .affirm-input-row {
     display: flex;
-    flex-direction: column;
-    margin-bottom: 8px;
+    gap: 6px;
+    margin-bottom: 12px;
   }
-  .wilt-label {
-    font-family: var(--serif);
-    font-style: italic;
-    font-size: 12px;
-    color: var(--soft);
-    margin-bottom: 4px;
-  }
-  .wilt-input {
-    width: 100%;
-    min-height: 40px;
-    resize: vertical;
+  .wilt-input, .affirm-input {
+    flex: 1;
+    background: rgba(255,255,255,0.7);
     border: 1px solid rgba(0,0,0,0.12);
     border-radius: 3px;
-    padding: 6px 10px;
+    padding: 0 10px;
     font-family: var(--serif);
     font-size: 14px;
-    font-style: italic;
-    line-height: 1.4;
     color: var(--ink);
-    background: rgba(255,252,245,0.7);
+    height: 34px;
     outline: none;
-    transition: all 0.15s ease;
+    transition: border-color 0.15s ease, background 0.15s ease;
   }
-  .wilt-input:focus { border-color: var(--ink); background: var(--paper); }
-  .wilt-history {
+  .wilt-input:focus, .affirm-input:focus { border-color: var(--ink); background: var(--paper); }
+
+  .wilt-recent {
     flex: 1;
     overflow-y: auto;
-    max-height: 90px;
-    border-top: 1px solid rgba(0,0,0,0.1);
-    padding-top: 6px;
-    margin-top: 6px;
+    max-height: 130px;
+    display: flex;
+    flex-direction: column;
   }
   .wilt-entry {
-    padding: 6px 0;
+    padding: 7px 0;
     border-bottom: 1px dashed rgba(0,0,0,0.12);
-    font-size: 13px;
-    line-height: 1.5;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    line-height: 1.4;
   }
   .wilt-entry:last-child { border-bottom: 0; }
+  .wilt-entry-body { flex: 1; min-width: 0; }
   .wilt-date {
-    font-size: 11px;
+    font-size: 10px;
     letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--mute);
-    margin-bottom: 3px;
-    font-family: var(--serif);
+    margin-bottom: 2px;
+    font-family: var(--sans);
   }
-  .wilt-text { font-family: var(--serif); color: var(--soft); white-space: pre-wrap; font-size: 15px; }
+  .wilt-text {
+    font-family: var(--serif);
+    color: var(--ink);
+    white-space: pre-wrap;
+    font-size: 13.5px;
+    line-height: 1.4;
+  }
+  .wilt-entry-delete {
+    background: transparent;
+    border: none;
+    color: var(--mute);
+    font-size: 14px;
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.15s ease, color 0.15s ease;
+    flex-shrink: 0;
+    line-height: 1;
+    padding: 0;
+  }
+  .wilt-entry:hover .wilt-entry-delete { opacity: 1; }
+  .wilt-entry-delete:hover { color: #b3261e; }
+  .wilt-empty {
+    font-family: var(--serif);
+    font-style: italic;
+    color: var(--mute);
+    font-size: 13px;
+    padding: 6px 0;
+  }
+
+  /* WILT archive lightbox */
+  .fs-title-static {
+    font-family: var(--serif);
+    font-size: 26px;
+    font-weight: 500;
+    color: var(--ink);
+    line-height: 1.1;
+    flex: 1;
+  }
+  .wilt-archive-count {
+    font-family: var(--sans);
+    font-size: 9pt;
+    color: var(--mute);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    margin-right: 20px;
+  }
+  .wilt-archive-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px 32px 80px;
+    background: var(--bg);
+  }
+  .wilt-archive-inner {
+    max-width: 720px;
+    margin: 0 auto;
+  }
+  .wilt-archive-group { margin-bottom: 32px; }
+  .wilt-archive-group-label {
+    font-family: var(--sans);
+    font-size: 9pt;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--mute);
+    font-weight: 500;
+    margin-bottom: 8px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--line);
+  }
+  .wilt-archive-entry {
+    padding: 14px 0;
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    border-bottom: 1px solid var(--line);
+  }
+  .wilt-archive-entry:last-child { border-bottom: 0; }
+  .wilt-archive-date {
+    min-width: 56px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+  .wilt-archive-date-day {
+    font-family: var(--serif);
+    font-size: 18pt;
+    font-weight: 500;
+    color: var(--ink);
+    line-height: 1.05;
+  }
+  .wilt-archive-date-month {
+    font-family: var(--sans);
+    font-size: 8.5pt;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--mute);
+    margin-top: 2px;
+  }
+  .wilt-archive-text {
+    flex: 1;
+    font-family: var(--serif);
+    font-size: 14pt;
+    line-height: 1.45;
+    color: var(--ink);
+    padding-top: 4px;
+  }
+  .wilt-archive-empty {
+    text-align: center;
+    padding: 80px 20px;
+    font-family: var(--serif);
+    font-style: italic;
+    color: var(--mute);
+    font-size: 14pt;
+  }
 
   /* ───────────────────────────── GOALS ──────────────────────────── */
   .goal-tabs {
@@ -1601,9 +1725,10 @@
   <section class="widget w-affirmations">
     <div class="widget-header">
       <div class="widget-title"><span class="icon-slot" data-icon="affirmations"><img src="affirmations.svg" alt=""></span>Affirmations</div>
-      <div class="widget-actions">
-        <button class="icon-btn primary" id="affirm-add">+ Add</button>
-      </div>
+    </div>
+    <div class="affirm-input-row">
+      <input type="text" class="affirm-input" id="affirm-input" placeholder="Add an affirmation…">
+      <button class="add-btn" id="affirm-add-btn">Add</button>
     </div>
     <div class="sticky-stack" id="sticky-stack"></div>
   </section>
@@ -1624,13 +1749,15 @@
   <section class="widget w-wilt">
     <div class="widget-header">
       <div class="widget-title"><span class="icon-slot" data-icon="wilt"><img src="wilt.svg" alt=""></span>WILT</div>
-      <div class="widget-actions"><span class="icon-btn" style="cursor:default; font-style:italic;">what I learned today</span></div>
+      <div class="widget-actions">
+        <button class="icon-btn" id="wilt-view-all">View all</button>
+      </div>
     </div>
-    <div class="wilt-today">
-      <div class="wilt-label" id="wilt-today-label">Today</div>
-      <textarea class="wilt-input" id="wilt-input" placeholder="One thing you learned today…"></textarea>
+    <div class="wilt-input-row">
+      <input type="text" class="wilt-input" id="wilt-input" placeholder="Something I learned today…">
+      <button class="add-btn" id="wilt-add-btn">Add</button>
     </div>
-    <div class="wilt-history" id="wilt-history"></div>
+    <div class="wilt-recent" id="wilt-recent"></div>
   </section>
 
   <!-- RESOURCES (row 3) -->
@@ -1643,6 +1770,16 @@
   </section>
 
 </main>
+
+<!-- ─────────────────────────── WILT ARCHIVE ─────────────────────────── -->
+<div class="fullscreen" id="wilt-archive">
+  <div class="fs-header">
+    <button class="fs-back" id="wilt-archive-close" title="Back to dashboard">←</button>
+    <div class="fs-title-static">Everything I've Learned</div>
+    <div class="wilt-archive-count" id="wilt-archive-count"></div>
+  </div>
+  <div class="wilt-archive-body" id="wilt-archive-body"></div>
+</div>
 
 <!-- ─────────────────────────── PROJECT FULLSCREEN ─────────────── -->
 <div class="fullscreen" id="project-view">
@@ -1767,7 +1904,7 @@ const DEFAULT_DATA = {
     calendarSrc: '',
     calendarMode: 'MONTH',
   },
-  wilt: {},
+  wilt: { entries: [] },
   affirmations: [],
   inspoImages: [],
   inspoIndex: 0,
@@ -1790,6 +1927,26 @@ function mergeWithDefaults(loaded) {
   const merged = Object.assign(clone(DEFAULT_DATA), loaded || {});
   merged.config = Object.assign({}, DEFAULT_DATA.config, merged.config || {});
   merged.goals  = Object.assign({}, DEFAULT_DATA.goals,  merged.goals  || {});
+
+  // Migrate WILT from { 'YYYY-MM-DD': 'text' } → { entries: [{id, text, date, createdAt}] }
+  if (!merged.wilt || typeof merged.wilt !== 'object' || Array.isArray(merged.wilt)) {
+    merged.wilt = { entries: [] };
+  } else if (!Array.isArray(merged.wilt.entries)) {
+    // Old date-keyed shape → convert
+    const entries = [];
+    Object.entries(merged.wilt).forEach(([dateKey, text]) => {
+      if (typeof text !== 'string' || !text.trim()) return;
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(dateKey)) return;
+      entries.push({
+        id: uid(),
+        text: text.trim(),
+        date: dateKey,
+        createdAt: new Date(dateKey + 'T12:00:00').getTime(),
+      });
+    });
+    merged.wilt = { entries: entries.sort((a, b) => b.createdAt - a.createdAt) };
+  }
+
   return merged;
 }
 
@@ -1999,25 +2156,24 @@ document.getElementById('calendar-save-btn').addEventListener('click', () => {
 function renderAffirmations() {
   const stack = document.getElementById('sticky-stack');
   stack.innerHTML = '';
-  if (data.affirmations.length === 0) {
-    stack.innerHTML = `<div class="empty-hint">add a note to remind yourself of the bigger picture</div>`;
+  // Filter out any zero-text affirmations (legacy data could have empty ones)
+  const real = (data.affirmations || []).filter(a => a && a.text && a.text.trim());
+  if (real.length === 0) {
+    stack.innerHTML = `<div class="empty-hint">add an affirmation above</div>`;
     return;
   }
-  data.affirmations.forEach(a => {
+  real.forEach(a => {
     const div = document.createElement('div');
     div.className = 'sticky';
-    div.setAttribute('contenteditable', 'true');
-    div.textContent = a.text;
     div.dataset.id = a.id;
-    div.addEventListener('input', () => {
-      a.text = div.textContent;
-      save();
-    });
+    div.textContent = a.text;
     const del = document.createElement('button');
     del.className = 'sticky-delete';
+    del.type = 'button';
     del.textContent = '×';
-    del.contentEditable = 'false';
-    del.addEventListener('click', (e) => {
+    del.title = 'Delete';
+    del.addEventListener('pointerdown', e => e.preventDefault());   // mobile: don't steal focus
+    del.addEventListener('click', e => {
       e.stopPropagation();
       data.affirmations = data.affirmations.filter(x => x.id !== a.id);
       save(true);
@@ -2027,14 +2183,24 @@ function renderAffirmations() {
     stack.appendChild(div);
   });
 }
-document.getElementById('affirm-add').addEventListener('click', () => {
-  data.affirmations.push({ id: uid(), text: '' });
-  save();
+
+function addAffirmation() {
+  const input = document.getElementById('affirm-input');
+  const text = (input.value || '').trim();
+  if (!text) return;
+  if (!Array.isArray(data.affirmations)) data.affirmations = [];
+  data.affirmations.push({ id: uid(), text });
+  input.value = '';
+  save(true);
   renderAffirmations();
-  // Focus the newly added sticky
-  const stickies = document.querySelectorAll('.sticky');
-  const last = stickies[stickies.length - 1];
-  if (last) last.focus();
+}
+
+document.getElementById('affirm-add-btn').addEventListener('click', addAffirmation);
+document.getElementById('affirm-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    addAffirmation();
+  }
 });
 
 /* ════════════════ INSPO IMAGE ════════════════ */
@@ -2128,34 +2294,130 @@ setInterval(() => {
 }, 60 * 1000); // check every minute
 
 /* ════════════════ WILT ════════════════ */
+function formatWiltDate(timestamp) {
+  const d = new Date(timestamp);
+  const today = new Date();
+  const yesterday = new Date(today.getTime() - 86400000);
+  const sameDay = (a, b) =>
+    a.getFullYear() === b.getFullYear() &&
+    a.getMonth() === b.getMonth() &&
+    a.getDate() === b.getDate();
+  if (sameDay(d, today)) return 'Today';
+  if (sameDay(d, yesterday)) return 'Yesterday';
+  return d.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+}
+
 function renderWILT() {
-  const today = todayKey();
-  const lbl = document.getElementById('wilt-today-label');
-  const d = new Date();
-  lbl.textContent = d.toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' });
-  const inp = document.getElementById('wilt-input');
-  inp.value = data.wilt[today] || '';
-  // History
-  const hist = document.getElementById('wilt-history');
-  const keys = Object.keys(data.wilt).filter(k => k !== today && data.wilt[k]).sort().reverse();
-  if (keys.length === 0) {
-    hist.innerHTML = `<div class="empty-hint" style="padding:12px 0;">past entries will live here</div>`;
+  const recent = document.getElementById('wilt-recent');
+  const entries = (data.wilt && data.wilt.entries) || [];
+  if (entries.length === 0) {
+    recent.innerHTML = '<div class="wilt-empty">Add what you learned today.</div>';
     return;
   }
-  hist.innerHTML = keys.map(k => {
-    const dt = new Date(k + 'T00:00:00');
-    const label = dt.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
-    const text = data.wilt[k].replace(/</g, '&lt;');
-    return `<div class="wilt-entry"><div class="wilt-date">${label}</div><div class="wilt-text">${text}</div></div>`;
-  }).join('');
+  // Show last 5 in the widget; "View all" opens the archive
+  const recentFew = entries.slice(0, 5);
+  recent.innerHTML = recentFew.map(e => `
+    <div class="wilt-entry" data-id="${e.id}">
+      <div class="wilt-entry-body">
+        <div class="wilt-date">${formatWiltDate(e.createdAt)}</div>
+        <div class="wilt-text">${(e.text || '').replace(/</g, '&lt;')}</div>
+      </div>
+      <button class="wilt-entry-delete" title="Delete">×</button>
+    </div>
+  `).join('');
+  recent.querySelectorAll('.wilt-entry-delete').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      const id = btn.closest('.wilt-entry').dataset.id;
+      data.wilt.entries = data.wilt.entries.filter(x => x.id !== id);
+      save(true);
+      renderWILT();
+    });
+  });
 }
-document.getElementById('wilt-input').addEventListener('input', e => {
-  data.wilt[todayKey()] = e.target.value;
-  save();
-});
-document.getElementById('wilt-input').addEventListener('blur', () => {
+
+function addWiltEntry() {
+  const input = document.getElementById('wilt-input');
+  const text = (input.value || '').trim();
+  if (!text) return;
+  if (!data.wilt) data.wilt = { entries: [] };
+  if (!Array.isArray(data.wilt.entries)) data.wilt.entries = [];
+  const now = Date.now();
+  data.wilt.entries.unshift({
+    id: uid(),
+    text,
+    date: todayKey(),
+    createdAt: now,
+  });
+  input.value = '';
+  save(true);
   renderWILT();
+}
+
+document.getElementById('wilt-add-btn').addEventListener('click', addWiltEntry);
+document.getElementById('wilt-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    addWiltEntry();
+  }
 });
+
+/* ────────── WILT ARCHIVE (lightbox) ────────── */
+function groupWiltByMonth(entries) {
+  const groups = {};
+  entries.forEach(e => {
+    const d = new Date(e.createdAt);
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+    const label = d.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
+    if (!groups[key]) groups[key] = { label, entries: [] };
+    groups[key].entries.push(e);
+  });
+  // Sort keys descending (newest month first)
+  return Object.keys(groups)
+    .sort((a, b) => b.localeCompare(a))
+    .map(k => groups[k]);
+}
+
+function renderWiltArchive() {
+  const body = document.getElementById('wilt-archive-body');
+  const countEl = document.getElementById('wilt-archive-count');
+  const entries = (data.wilt && data.wilt.entries) || [];
+  countEl.textContent = entries.length === 0
+    ? ''
+    : `${entries.length} entr${entries.length === 1 ? 'y' : 'ies'}`;
+  if (entries.length === 0) {
+    body.innerHTML = `<div class="wilt-archive-empty">Nothing here yet — add something you learned today.</div>`;
+    return;
+  }
+  const groups = groupWiltByMonth(entries);
+  body.innerHTML = `<div class="wilt-archive-inner">${groups.map(g => `
+    <div class="wilt-archive-group">
+      <div class="wilt-archive-group-label">${g.label}</div>
+      ${g.entries.map(e => {
+        const d = new Date(e.createdAt);
+        return `
+          <div class="wilt-archive-entry" data-id="${e.id}">
+            <div class="wilt-archive-date">
+              <div class="wilt-archive-date-day">${d.getDate()}</div>
+              <div class="wilt-archive-date-month">${d.toLocaleDateString(undefined, { month: 'short' })}</div>
+            </div>
+            <div class="wilt-archive-text">${(e.text || '').replace(/</g, '&lt;')}</div>
+          </div>
+        `;
+      }).join('')}
+    </div>
+  `).join('')}</div>`;
+}
+
+function openWiltArchive() {
+  document.getElementById('wilt-archive').classList.add('open');
+  renderWiltArchive();
+}
+function closeWiltArchive() {
+  document.getElementById('wilt-archive').classList.remove('open');
+}
+document.getElementById('wilt-view-all').addEventListener('click', openWiltArchive);
+document.getElementById('wilt-archive-close').addEventListener('click', closeWiltArchive);
 
 /* ════════════════ GOALS ════════════════ */
 function renderGoals() {
