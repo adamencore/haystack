@@ -388,6 +388,22 @@
   }
   .add-btn:hover { background: var(--soft); }
   .add-btn:disabled { background: var(--line-strong); cursor: not-allowed; opacity: 0.7; }
+  /* Icon-only variant: hand-drawn plus SVG is the entire button */
+  .add-btn.icon-only {
+    background: transparent;
+    padding: 0;
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    transition: transform 0.1s ease, opacity 0.15s ease;
+  }
+  .add-btn.icon-only:hover { background: transparent; transform: scale(1.06); }
+  .add-btn.icon-only:active { transform: scale(0.94); }
+  .add-btn.icon-only img {
+    width: 30px; height: 30px;
+    display: block;
+    pointer-events: none;
+  }
 
   .wilt-input-row, .affirm-input-row {
     display: flex;
@@ -1545,18 +1561,18 @@
     border-radius: 50%;
     cursor: pointer;
     padding: 0;
-    display: flex; flex-direction: column;
+    display: flex;
     align-items: center; justify-content: center;
-    gap: 4px;
     box-shadow: 0 1px 3px rgba(10,10,10,0.06);
     transition: background 0.15s ease, border-color 0.15s ease;
     position: relative;
   }
   .ham-btn:hover { border-color: var(--line-strong); }
-  .ham-btn .ham-line {
-    width: 16px; height: 1.5px;
-    background: var(--ink);
-    border-radius: 1px;
+  .ham-icon {
+    width: 20px;
+    height: auto;
+    display: block;
+    pointer-events: none;
   }
   /* Sync dot perches on the hamburger as a small status indicator */
   .ham-btn .sync-dot {
@@ -1636,9 +1652,7 @@
 <!-- ─────────────────────────── HAMBURGER MENU ─────────────────────────── -->
 <div class="account-chip" id="account-chip">
   <button class="ham-btn" id="ham-btn" aria-label="Menu">
-    <span class="ham-line"></span>
-    <span class="ham-line"></span>
-    <span class="ham-line"></span>
+    <img src="hamburger.svg" alt="" class="ham-icon">
     <span class="sync-dot" id="sync-dot" title="In sync"></span>
   </button>
   <div class="ham-panel" id="ham-panel">
@@ -1673,7 +1687,7 @@
   <!-- PROJECTS (row 1, full width) -->
   <section class="widget w-projects">
     <div class="widget-header">
-      <div class="widget-title"><span class="icon-slot" data-icon="projects"><img src="projects.webp" alt=""></span>Projects</div>
+      <div class="widget-title"><span class="icon-slot" data-icon="projects"><img src="projects.svg" alt=""></span>Projects</div>
     </div>
     <div class="projects-grid" id="projects-grid"></div>
   </section>
@@ -1699,7 +1713,7 @@
   <!-- PEOPLE (row 2) -->
   <section class="widget w-people">
     <div class="widget-header">
-      <div class="widget-title"><span class="icon-slot" data-icon="people"><img src="people.webp" alt=""></span>People</div>
+      <div class="widget-title"><span class="icon-slot" data-icon="people"><img src="people.svg" alt=""></span>People</div>
     </div>
     <div class="people-list" id="people-list"></div>
     <button class="person-add-btn" id="people-open-btn">manage</button>
@@ -1728,7 +1742,7 @@
     </div>
     <div class="affirm-input-row">
       <input type="text" class="affirm-input" id="affirm-input" placeholder="Add an affirmation…">
-      <button class="add-btn" id="affirm-add-btn">Add</button>
+      <button class="add-btn icon-only" id="affirm-add-btn" title="Add"><img src="plus.svg" alt="Add"></button>
     </div>
     <div class="sticky-stack" id="sticky-stack"></div>
   </section>
@@ -1755,7 +1769,7 @@
     </div>
     <div class="wilt-input-row">
       <input type="text" class="wilt-input" id="wilt-input" placeholder="Something I learned today…">
-      <button class="add-btn" id="wilt-add-btn">Add</button>
+      <button class="add-btn icon-only" id="wilt-add-btn" title="Add"><img src="plus.svg" alt="Add"></button>
     </div>
     <div class="wilt-recent" id="wilt-recent"></div>
   </section>
