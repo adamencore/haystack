@@ -251,6 +251,24 @@
     overflow: hidden;
   }
   .calendar-frame iframe { width: 100%; height: 100%; border: 0; min-height: 200px; }
+  .calendar-mobile-open {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 100%;
+    min-height: 200px;
+    padding: 24px;
+    text-align: center;
+    text-decoration: none;
+    color: var(--ink);
+    background: var(--paper);
+    transition: background 0.15s ease;
+  }
+  .calendar-mobile-open:hover { background: var(--paper-sunken); }
+  .cmo-title { font-family: var(--serif); font-size: 22px; font-weight: 500; }
+  .cmo-sub   { font-family: var(--sans); font-size: 11pt; color: var(--mute); line-height: 1.4; }
   .calendar-empty {
     display: flex;
     flex-direction: column;
@@ -814,36 +832,7 @@
     line-height: 1.2;
   }
   .note-card-title::placeholder { color: var(--mute); font-style: italic; font-weight: 400; }
-  .note-card-delete {
-    position: absolute;
-    top: 6px;
-    right: 8px;
-    background: transparent;
-    border: none;
-    color: var(--mute);
-    font-size: 16px;
-    width: 22px;
-    height: 22px;
-    border-radius: 50%;
-    padding: 0;
-    cursor: pointer;
-    opacity: 0;
-    transition: opacity 0.15s ease, color 0.15s ease, background 0.15s ease;
-    line-height: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 3;
-  }
-  /* Reveal only when hovering the title area (or the button itself) */
-  .note-card-head:hover ~ .note-card-delete,
-  .note-card-delete:hover {
-    opacity: 1;
-  }
-  .note-card-delete:hover {
-    background: var(--paper-sunken);
-    color: #b3261e;
-  }
+  .note-card-delete { display: none; }
 
   .note-card-content {
     outline: none;
@@ -888,48 +877,117 @@
     letter-spacing: 0.6px;
   }
 
-  /* Controls panel — slides in when card has focus */
-  .note-card-controls {
-    margin-top: 14px;
-    padding-top: 10px;
-    border-top: 1px solid var(--line);
+  /* ───── 3-dot menu button (bottom-right of card) ───── */
+  .note-card-menu-btn {
+    position: absolute;
+    bottom: 6px;
+    right: 8px;
+    background: transparent;
+    border: none;
+    color: var(--mute);
+    font-size: 16px;
+    width: 24px;
+    height: 22px;
+    border-radius: 4px;
+    padding: 0 0 4px 0;
+    cursor: pointer;
+    opacity: 0.45;
+    line-height: 1;
+    transition: opacity 0.15s ease, background 0.15s ease, color 0.15s ease;
+    display: flex; align-items: center; justify-content: center;
+    z-index: 3;
+  }
+  .note-card:hover .note-card-menu-btn,
+  .note-card-menu-btn:focus,
+  .note-card.menu-open .note-card-menu-btn { opacity: 1; }
+  .note-card-menu-btn:hover { background: var(--paper-sunken); color: var(--ink); }
+  /* On touch devices, always show the menu button so it's discoverable */
+  @media (pointer: coarse) {
+    .note-card-menu-btn { opacity: 0.7; }
+  }
+
+  /* ───── 3-dot popover menu ───── */
+  .note-card-menu {
+    position: absolute;
+    bottom: 32px;
+    right: 4px;
+    min-width: 220px;
+    max-width: 260px;
+    background: var(--paper);
+    border: 1px solid var(--line-strong);
+    border-radius: 6px;
+    box-shadow: 0 10px 28px rgba(10,10,10,0.16);
+    padding: 12px 14px;
     display: none;
     flex-direction: column;
-    gap: 7px;
+    gap: 12px;
+    z-index: 20;
+    cursor: default;
   }
-  .note-card:focus-within .note-card-controls { display: flex; }
-  .note-controls-row { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; }
-  .note-controls-row .tag-label {
+  .note-card.menu-open .note-card-menu { display: flex; }
+  .ncm-label {
     font-family: var(--sans);
     font-size: 8pt;
     color: var(--mute);
     text-transform: uppercase;
     letter-spacing: 0.6px;
-    margin-right: 4px;
-    font-style: normal;
     font-weight: 500;
+    margin-bottom: 5px;
   }
-  .note-controls-row .tag-btn {
+  .ncm-tags { display: flex; flex-wrap: wrap; gap: 4px; }
+  .ncm-tag {
+    background: var(--paper-sunken);
+    border: 1px solid var(--line);
+    color: var(--ink);
     font-family: var(--sans);
-    font-style: normal;
     font-weight: 600;
     font-size: 8.5pt;
-    padding: 2px 8px;
+    padding: 3px 9px;
     border-radius: 99px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: filter 0.1s ease, transform 0.08s ease;
   }
-
+  .ncm-tag:hover { filter: brightness(0.96); }
+  .ncm-tag:active { transform: scale(0.96); }
+  .ncm-tag.active { box-shadow: 0 0 0 2px var(--ink); }
+  .ncm-tag-add {
+    background: transparent;
+    border: 1px dashed var(--line-strong);
+    color: var(--mute);
+    font-family: var(--sans);
+    font-size: 8.5pt;
+    padding: 3px 10px;
+    border-radius: 99px;
+    cursor: pointer;
+    font-weight: 700;
+  }
+  .ncm-tag-add:hover { color: var(--ink); border-color: var(--ink); }
+  .ncm-clear {
+    background: transparent;
+    border: none;
+    color: var(--mute);
+    font-family: var(--sans);
+    font-size: 9pt;
+    cursor: pointer;
+    text-align: left;
+    padding: 0;
+    margin-top: 2px;
+    text-decoration: underline;
+  }
+  .ncm-clear:hover { color: var(--ink); }
+  .ncm-colors { display: flex; flex-wrap: wrap; gap: 6px; }
   /* Color picker swatches */
   .color-swatch {
-    width: 14px; height: 14px;
+    width: 18px; height: 18px;
     border-radius: 50%;
     border: 1px solid var(--line-strong);
     cursor: pointer;
     padding: 0;
     transition: transform 0.1s ease;
   }
-  .color-swatch:hover { transform: scale(1.2); }
+  .color-swatch:hover { transform: scale(1.15); }
   .color-swatch.active { box-shadow: 0 0 0 2px var(--ink); }
   .color-swatch.no-color {
     background: var(--paper);
@@ -942,6 +1000,30 @@
     height: 1px;
     background: var(--mute);
     transform: rotate(-45deg);
+  }
+  .ncm-divider { height: 1px; background: var(--line); margin: 2px -14px; }
+  .ncm-action {
+    background: transparent;
+    border: none;
+    text-align: left;
+    padding: 6px 4px;
+    font-family: var(--sans);
+    font-size: 10pt;
+    color: var(--ink);
+    cursor: pointer;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .ncm-action:hover { background: var(--paper-sunken); }
+  .ncm-action.danger:hover { background: rgba(179,38,30,0.08); color: #b3261e; }
+  /* Bigger tap targets on touch */
+  @media (pointer: coarse) {
+    .ncm-tag { padding: 6px 12px; font-size: 9.5pt; }
+    .ncm-tag-add { padding: 6px 13px; font-size: 9.5pt; }
+    .color-swatch { width: 26px; height: 26px; }
+    .ncm-action { padding: 10px 4px; font-size: 11pt; }
   }
 
   /* "+" button — round, sits at top of the left toolbar */
@@ -1324,35 +1406,86 @@
   }
 
   /* ───── Account chip (top-right when signed in) ───── */
+  /* Hamburger menu (top-right) — collapses date/account/sync into one tap target */
   .account-chip {
-    position: fixed; top: 14px; right: 18px;
+    position: fixed; top: 12px; right: 14px;
     display: none;
-    align-items: center; gap: 10px;
-    font-size: 12px;
-    color: var(--mute);
     z-index: 200;
     font-family: var(--sans);
   }
-  .account-chip.show { display: flex; }
-  .account-chip button {
+  .account-chip.show { display: block; }
+  .ham-btn {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    cursor: pointer;
+    padding: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 4px;
+    box-shadow: 0 1px 3px rgba(10,10,10,0.06);
+    transition: background 0.15s ease, border-color 0.15s ease;
+    position: relative;
+  }
+  .ham-btn:hover { border-color: var(--line-strong); }
+  .ham-btn .ham-line {
+    width: 16px; height: 1.5px;
+    background: var(--ink);
+    border-radius: 1px;
+  }
+  /* Sync dot perches on the hamburger as a small status indicator */
+  .ham-btn .sync-dot {
+    position: absolute;
+    top: 5px; right: 5px;
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--hs-green);
+    opacity: 0.85;
+  }
+  .ham-btn .sync-dot.syncing { background: var(--hs-yellow); }
+  .ham-btn .sync-dot.error   { background: var(--hs-pink); }
+
+  .ham-panel {
+    position: absolute;
+    top: 48px; right: 0;
+    min-width: 220px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    box-shadow: 0 8px 24px rgba(10,10,10,0.12);
+    padding: 12px 14px;
+    display: none;
+    flex-direction: column;
+    gap: 10px;
+    font-size: 13px;
+  }
+  .ham-panel.open { display: flex; }
+  .ham-row { display: flex; align-items: center; gap: 8px; }
+  .ham-row.muted { color: var(--mute); font-size: 12px; }
+  .ham-row.italic { font-style: italic; color: var(--soft); }
+  .ham-divider { height: 1px; background: var(--line); margin: 2px -14px; }
+  .ham-panel button {
     background: transparent;
     border: 1px solid var(--line-strong);
-    padding: 4px 10px;
+    padding: 6px 12px;
     border-radius: 4px;
     font-family: var(--sans);
-    font-size: 12px;
-    color: var(--soft);
+    font-size: 13px;
+    color: var(--ink);
     cursor: pointer;
+    text-align: left;
+    width: 100%;
   }
-  .account-chip button:hover { background: var(--paper-sunken); }
-  .sync-dot {
-    width: 7px; height: 7px; border-radius: 50%;
+  .ham-panel button:hover { background: var(--paper-sunken); }
+  .ham-status-dot {
+    width: 8px; height: 8px; border-radius: 50%;
     background: var(--hs-green);
-    display: inline-block;
-    opacity: 0.65;
+    opacity: 0.85;
+    flex-shrink: 0;
   }
-  .sync-dot.syncing { background: var(--hs-yellow); }
-  .sync-dot.error   { background: var(--hs-pink); }
+  .ham-status-dot.syncing { background: var(--hs-yellow); }
+  .ham-status-dot.error   { background: var(--hs-pink); }
 
   ::-webkit-scrollbar { width: 8px; height: 8px; }
   ::-webkit-scrollbar-track { background: transparent; }
@@ -1376,11 +1509,24 @@
   </div>
 </div>
 
-<!-- ─────────────────────────── ACCOUNT CHIP ─────────────────────────── -->
+<!-- ─────────────────────────── HAMBURGER MENU ─────────────────────────── -->
 <div class="account-chip" id="account-chip">
-  <span class="sync-dot" id="sync-dot" title="In sync"></span>
-  <span id="account-name"></span>
-  <button id="signout-btn">Sign out</button>
+  <button class="ham-btn" id="ham-btn" aria-label="Menu">
+    <span class="ham-line"></span>
+    <span class="ham-line"></span>
+    <span class="ham-line"></span>
+    <span class="sync-dot" id="sync-dot" title="In sync"></span>
+  </button>
+  <div class="ham-panel" id="ham-panel">
+    <div class="ham-row italic" id="ham-date"></div>
+    <div class="ham-row muted">
+      <span class="ham-status-dot" id="ham-status-dot"></span>
+      <span id="ham-status-text">In sync</span>
+    </div>
+    <div class="ham-row muted">Signed in as <strong id="account-name" style="color:var(--ink); font-weight:600; margin-left:4px;"></strong></div>
+    <div class="ham-divider"></div>
+    <button id="signout-btn">Sign out</button>
+  </div>
 </div>
 
 <!-- ─────────────────────────── HEADER ─────────────────────────── -->
@@ -1631,6 +1777,7 @@ const DEFAULT_DATA = {
   goalScope: 'day',
   resources: [],
   projects: [],
+  tags: ['today', 'tomorrow', 'someday'],
 };
 
 function clone(o) { return JSON.parse(JSON.stringify(o)); }
@@ -1665,12 +1812,43 @@ async function pushStateToCloud(payload) {
 
 function setSyncDot(state) {
   const dot = document.getElementById('sync-dot');
-  if (!dot) return;
-  dot.classList.remove('syncing', 'error');
-  if (state === 'syncing') dot.classList.add('syncing');
-  if (state === 'error')   dot.classList.add('error');
-  dot.title = state === 'syncing' ? 'Saving…' : state === 'error' ? 'Save failed — will retry on next change' : 'In sync';
+  const panelDot = document.getElementById('ham-status-dot');
+  const text = document.getElementById('ham-status-text');
+  const label = state === 'syncing' ? 'Saving…' : state === 'error' ? 'Save failed — will retry' : 'In sync';
+  [dot, panelDot].forEach(el => {
+    if (!el) return;
+    el.classList.remove('syncing', 'error');
+    if (state === 'syncing') el.classList.add('syncing');
+    if (state === 'error')   el.classList.add('error');
+    el.title = label;
+  });
+  if (text) text.textContent = label;
 }
+
+// Hamburger menu open/close
+(function setupHamburger() {
+  const btn   = document.getElementById('ham-btn');
+  const panel = document.getElementById('ham-panel');
+  if (!btn || !panel) return;
+  btn.addEventListener('click', e => {
+    e.stopPropagation();
+    panel.classList.toggle('open');
+    // Refresh the date line each time it opens
+    if (panel.classList.contains('open')) {
+      const dateEl = document.getElementById('ham-date');
+      if (dateEl) {
+        const now = new Date();
+        dateEl.textContent = now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+      }
+    }
+  });
+  // Close when clicking anywhere outside
+  document.addEventListener('click', e => {
+    if (!panel.classList.contains('open')) return;
+    if (e.target.closest('#account-chip')) return;
+    panel.classList.remove('open');
+  });
+})();
 
 let saveTimer = null;
 function save(flash = false) {
@@ -1767,6 +1945,19 @@ function renderCalendar() {
       </div>`;
     return;
   }
+
+  // Mobile browsers (especially iOS Safari) block third-party cookies, which breaks
+  // the Google Calendar embed. Show a tap-to-open card instead.
+  const isMobile = window.matchMedia('(pointer: coarse)').matches;
+  if (isMobile) {
+    frame.innerHTML = `
+      <a class="calendar-mobile-open" href="https://calendar.google.com" target="_blank" rel="noopener">
+        <div class="cmo-title">Open Calendar</div>
+        <div class="cmo-sub">Embedded view doesn't work on mobile<br>(third-party cookies blocked)</div>
+      </a>`;
+    return;
+  }
+
   let finalSrc;
   try {
     const u = new URL(src);
@@ -2301,6 +2492,26 @@ function attachCardDrag(card, n, proj) {
   });
 }
 
+// Stable color assignment for tags (built-ins use Haystack palette; custom tags hash to a palette entry)
+const TAG_PALETTE = [
+  { bg: '#FFE3EF', fg: '#A8345D' },  // pink
+  { bg: '#FFF1CC', fg: '#7A5500' },  // yellow
+  { bg: '#D9F7E6', fg: '#1F6E4A' },  // mint
+  { bg: '#D6ECFF', fg: '#1F4F8B' },  // sky
+  { bg: '#FFE5D0', fg: '#8B3F00' },  // peach
+  { bg: '#E8DEFE', fg: '#4F2D9B' },  // lavender
+];
+function getTagColor(tag) {
+  if (!tag) return null;
+  if (tag === 'today')    return { bg: '#FFE3EF', fg: '#A8345D' };
+  if (tag === 'tomorrow') return { bg: '#FFF1CC', fg: '#7A5500' };
+  if (tag === 'someday')  return { bg: '#D6ECFF', fg: '#1F4F8B' };
+  let h = 0;
+  for (let i = 0; i < tag.length; i++) h = (h * 31 + tag.charCodeAt(i)) | 0;
+  return TAG_PALETTE[Math.abs(h) % TAG_PALETTE.length];
+}
+const tagDisplay = t => (t || '').toUpperCase();
+
 function renderCard(card, n, proj) {
   const swatches = NOTE_COLORS.map(c => {
     const active = (c.value === (n.color || '')) ? ' active' : '';
@@ -2309,9 +2520,20 @@ function renderCard(card, n, proj) {
     return `<button class="color-swatch${active}${noColorCls}" data-color="${c.value}" style="background:${bg};" title="${c.name || 'no color'}"></button>`;
   }).join('');
 
-  const tagChipHTML = n.tag
-    ? `<div><span class="note-tag-chip tag-${n.tag}">#${n.tag}</span></div>`
-    : '';
+  // Tag chip (visible on card when set)
+  let tagChipHTML = '';
+  if (n.tag) {
+    const c = getTagColor(n.tag);
+    tagChipHTML = `<div><span class="note-tag-chip" style="background:${c.bg}; color:${c.fg};">${tagDisplay(n.tag)}</span></div>`;
+  }
+
+  // Tag list for the menu — combines known tags with this note's tag (if it's been removed from data.tags somehow)
+  const known = Array.from(new Set([...(data.tags || []), n.tag].filter(Boolean)));
+  const tagButtons = known.map(t => {
+    const c = getTagColor(t);
+    const active = (t === n.tag) ? ' active' : '';
+    return `<button class="ncm-tag${active}" data-tag="${t}" style="background:${c.bg}; color:${c.fg}; border-color:${c.bg};">${tagDisplay(t)}</button>`;
+  }).join('');
 
   card.innerHTML = `
     <div class="note-card-head">
@@ -2320,18 +2542,23 @@ function renderCard(card, n, proj) {
     <button class="note-card-delete" title="Delete note">×</button>
     <div class="note-card-content" contenteditable="true"></div>
     ${tagChipHTML}
-    <div class="note-card-controls">
-      <div class="note-controls-row">
-        <span class="tag-label">Tag</span>
-        <button class="tag-btn t-today" data-tag="today">Today</button>
-        <button class="tag-btn t-tomorrow" data-tag="tomorrow">Tomorrow</button>
-        <button class="tag-btn t-someday" data-tag="someday">Someday</button>
-        <button class="tag-btn" data-tag="">Clear</button>
+    <button class="note-card-menu-btn" aria-label="Note options" title="Note options">⋯</button>
+    <div class="note-card-menu" role="menu">
+      <div>
+        <div class="ncm-label">Tags</div>
+        <div class="ncm-tags">
+          ${tagButtons}
+          <button class="ncm-tag-add" title="Add custom tag">+</button>
+        </div>
+        ${n.tag ? '<button class="ncm-clear">Clear tag</button>' : ''}
       </div>
-      <div class="note-controls-row">
-        <span class="tag-label">Color</span>
-        ${swatches}
+      <div>
+        <div class="ncm-label">Color</div>
+        <div class="ncm-colors">${swatches}</div>
       </div>
+      <div class="ncm-divider"></div>
+      <button class="ncm-action" data-action="duplicate">Duplicate</button>
+      <button class="ncm-action danger" data-action="delete">Delete</button>
     </div>
   `;
 
@@ -2339,18 +2566,15 @@ function renderCard(card, n, proj) {
   const contentEl  = card.querySelector('.note-card-content');
   titleInput.value = n.title || '';
   contentEl.innerHTML = n.html || '';
-  updateTagButtons(card, n);
 
   // Title edits
   titleInput.addEventListener('input', e => {
     n.title = e.target.value; n.updatedAt = Date.now(); save();
   });
-
   // Content edits
   contentEl.addEventListener('input', () => {
     n.html = contentEl.innerHTML; n.updatedAt = Date.now(); save();
   });
-
   // Checkbox persistence
   contentEl.addEventListener('click', e => {
     if (e.target.matches('input[type="checkbox"]')) {
@@ -2361,13 +2585,12 @@ function renderCard(card, n, proj) {
       }, 0);
     }
   });
-
-  // Enter inside a checklist line → another checklist line (empty item + Enter = end the list)
+  // Enter inside a checklist line → another checklist line (empty + Enter ends list)
   contentEl.addEventListener('keydown', e => {
     if (e.key !== 'Enter' || e.shiftKey) return;
     const sel = window.getSelection();
     if (!sel || !sel.rangeCount) return;
-    let node = sel.anchorNode;
+    const node = sel.anchorNode;
     if (!node) return;
     const el = (node.nodeType === 1 ? node : node.parentElement);
     const checkItem = el && el.closest('.check-item');
@@ -2375,24 +2598,27 @@ function renderCard(card, n, proj) {
     e.preventDefault();
     const span = checkItem.querySelector('span');
     const isEmpty = !span || !(span.textContent || '').replace(/\u00A0/g, '').trim();
+    let host = checkItem;
+    while (host.parentElement && host.parentElement !== contentEl) host = host.parentElement;
     if (isEmpty) {
-      // End the list — drop a plain new line after the empty check-item
-      document.execCommand('insertHTML', false, '<div><br></div>');
-      // Remove the trailing empty check-item so we don't leave an orphan
-      const parent = checkItem.parentElement;
-      checkItem.remove();
-      // If the parent div is now empty, nuke it too
-      if (parent && parent.tagName === 'DIV' && !parent.textContent.trim() && !parent.querySelector('img,label,input')) {
-        parent.remove();
-      }
+      const newDiv = document.createElement('div');
+      newDiv.innerHTML = '<br>';
+      contentEl.insertBefore(newDiv, host);
+      host.remove();
+      const r = document.createRange();
+      r.setStart(newDiv, 0); r.collapse(true);
+      sel.removeAllRanges(); sel.addRange(r);
     } else {
-      // Add a new check-item on the next line
-      document.execCommand('insertHTML', false,
-        '<div><label class="check-item"><input type="checkbox"><span>&nbsp;</span></label></div>');
+      const newDiv = document.createElement('div');
+      newDiv.innerHTML = '<label class="check-item"><input type="checkbox"><span>\u00A0</span></label>';
+      contentEl.insertBefore(newDiv, host.nextSibling);
+      const newSpan = newDiv.querySelector('span');
+      const r = document.createRange();
+      r.selectNodeContents(newSpan); r.collapse(false);
+      sel.removeAllRanges(); sel.addRange(r);
     }
-    n.html = contentEl.innerHTML; save();
+    n.html = contentEl.innerHTML; n.updatedAt = Date.now(); save();
   });
-
   // Image paste
   contentEl.addEventListener('paste', e => {
     const items = (e.clipboardData || {}).items;
@@ -2411,22 +2637,68 @@ function renderCard(card, n, proj) {
     }
   });
 
-  // Toolbar lives in the project sidebar now (see setupProjectToolbar) — nothing per-card
+  // ─────── 3-dot menu wiring ───────
+  const menuBtn = card.querySelector('.note-card-menu-btn');
+  const menu    = card.querySelector('.note-card-menu');
+
+  // Keep focus from leaving the editor when tapping any button in the card (mobile fix)
+  menuBtn.addEventListener('pointerdown', e => e.preventDefault());
+  menu.querySelectorAll('button').forEach(b => b.addEventListener('pointerdown', e => e.preventDefault()));
+
+  menuBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    document.querySelectorAll('.note-card.menu-open').forEach(c => {
+      if (c !== card) c.classList.remove('menu-open');
+    });
+    card.classList.toggle('menu-open');
+  });
 
   // Tag buttons
-  card.querySelectorAll('.note-controls-row .tag-btn').forEach(btn => {
+  menu.querySelectorAll('.ncm-tag').forEach(btn => {
     btn.addEventListener('click', e => {
       e.stopPropagation();
-      n.tag = btn.dataset.tag || '';
+      n.tag = btn.dataset.tag;
       n.updatedAt = Date.now();
       save();
-      // Rerender just this card so the tag chip appears/disappears
+      card.classList.remove('menu-open');
       renderCard(card, n, proj);
     });
   });
 
+  // Add custom tag
+  const addBtn = menu.querySelector('.ncm-tag-add');
+  if (addBtn) {
+    addBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      const name = prompt('New tag name:');
+      if (!name) return;
+      const clean = name.trim().toLowerCase().replace(/^#/, '');
+      if (!clean) return;
+      if (!data.tags) data.tags = [];
+      if (!data.tags.includes(clean)) data.tags.push(clean);
+      n.tag = clean;
+      n.updatedAt = Date.now();
+      save();
+      card.classList.remove('menu-open');
+      renderCard(card, n, proj);
+    });
+  }
+
+  // Clear tag
+  const clearBtn = menu.querySelector('.ncm-clear');
+  if (clearBtn) {
+    clearBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      n.tag = '';
+      n.updatedAt = Date.now();
+      save();
+      card.classList.remove('menu-open');
+      renderCard(card, n, proj);
+    });
+  }
+
   // Color swatches
-  card.querySelectorAll('.color-swatch').forEach(btn => {
+  menu.querySelectorAll('.color-swatch').forEach(btn => {
     btn.addEventListener('click', e => {
       e.stopPropagation();
       n.color = btn.dataset.color || '';
@@ -2434,31 +2706,55 @@ function renderCard(card, n, proj) {
       save();
       if (n.color) card.style.background = n.color;
       else card.style.background = '';
-      card.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
+      menu.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
       btn.classList.add('active');
     });
   });
 
-  // Delete
-  card.querySelector('.note-card-delete').addEventListener('click', e => {
-    e.stopPropagation();
-    if (!confirm('Delete this note?')) return;
-    proj.notes = proj.notes.filter(x => x.id !== n.id);
-    // Folder must contain at least one note
-    if (proj.notes.length === 0) {
-      proj.notes.push({ id: uid(), title: '', html: '', tag: '', x: 40, y: 40, updatedAt: Date.now() });
-    }
-    save(true);
-    renderCanvas();
-    renderProjects();
+  // Duplicate / Delete
+  menu.querySelectorAll('.ncm-action').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      const action = btn.dataset.action;
+      if (action === 'duplicate') {
+        const dup = {
+          id: uid(),
+          title: n.title || '',
+          html: n.html || '',
+          tag: n.tag || '',
+          color: n.color || '',
+          x: (n.x || 0) + 30,
+          y: (n.y || 0) + 30,
+          updatedAt: Date.now(),
+        };
+        proj.notes.push(dup);
+        save();
+        card.classList.remove('menu-open');
+        renderCanvas();
+        renderProjects();
+      } else if (action === 'delete') {
+        if (!confirm('Delete this note?')) return;
+        proj.notes = proj.notes.filter(x => x.id !== n.id);
+        if (proj.notes.length === 0) {
+          proj.notes.push({ id: uid(), title: '', html: '', tag: '', x: 40, y: 40, updatedAt: Date.now() });
+        }
+        save(true);
+        renderCanvas();
+        renderProjects();
+      }
+    });
   });
 }
 
-function updateTagButtons(card, n) {
-  card.querySelectorAll('.note-controls-row .tag-btn').forEach(b => {
-    b.classList.toggle('active', b.dataset.tag === (n.tag || ''));
+// Close any open card menu when clicking elsewhere
+document.addEventListener('click', e => {
+  document.querySelectorAll('.note-card.menu-open').forEach(card => {
+    if (!card.contains(e.target)) card.classList.remove('menu-open');
   });
-}
+});
+
+function updateTagButtons() { /* legacy no-op — tags moved to the 3-dot menu */ }
+
 
 /* ════════════════ PROJECT SIDEBAR TOOLBAR ════════════════ */
 // Tracks the most recently focused note content editor so the global toolbar
@@ -2490,10 +2786,40 @@ function runToolbarCmd(cmd) {
     case 'paragraph': document.execCommand('formatBlock', false, 'P'); break;
     case 'ul': document.execCommand('insertUnorderedList'); break;
     case 'ol': document.execCommand('insertOrderedList'); break;
-    case 'check':
-      document.execCommand('insertHTML', false,
-        '<label class="check-item"><input type="checkbox"><span>&nbsp;item</span></label><div><br></div>');
+    case 'check': {
+      // Insert a new check-item line after the current block, then drop cursor into its span.
+      // Using DOM manipulation (not execCommand insertHTML) so we don't end up with a <div>
+      // illegally nested inside a <span>, which browsers handle badly.
+      const editor = lastFocusedEditor;
+      const sel = window.getSelection();
+      const newDiv = document.createElement('div');
+      newDiv.innerHTML = '<label class="check-item"><input type="checkbox"><span>\u00A0</span></label>';
+
+      let inserted = false;
+      if (sel && sel.rangeCount) {
+        // Find the topmost block-level ancestor of the cursor that's a direct child of editor
+        let host = sel.anchorNode;
+        if (host && host.nodeType !== 1) host = host.parentElement;
+        while (host && host.parentElement && host.parentElement !== editor) {
+          host = host.parentElement;
+        }
+        if (host && host.parentElement === editor) {
+          editor.insertBefore(newDiv, host.nextSibling);
+          inserted = true;
+        }
+      }
+      if (!inserted) editor.appendChild(newDiv);
+
+      // Place the cursor inside the new span
+      const newSpan = newDiv.querySelector('span');
+      const r = document.createRange();
+      r.selectNodeContents(newSpan);
+      r.collapse(false);
+      const sel2 = window.getSelection();
+      sel2.removeAllRanges();
+      sel2.addRange(r);
       break;
+    }
     case 'link': {
       const url = prompt('Link URL:');
       if (url) document.execCommand('createLink', false, url);
